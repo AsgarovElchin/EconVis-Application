@@ -17,7 +17,9 @@ class SignUpOrLoginFragment : Fragment() {
     ): View? {
         binding = FragmentSignUpOrLoginBinding.inflate(inflater, container, false)
 
-
+        binding.loginButton.setOnClickListener {
+            findNavController().navigate(R.id.action_signUpOrLoginFragment_to_loginFragment)
+        }
 
 
         return binding.root
