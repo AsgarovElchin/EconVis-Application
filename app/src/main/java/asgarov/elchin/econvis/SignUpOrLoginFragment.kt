@@ -20,6 +20,11 @@ class SignUpOrLoginFragment : Fragment() {
         binding.loginButton.setOnClickListener {
             findNavController().navigate(R.id.action_signUpOrLoginFragment_to_loginFragment)
         }
+        binding.createAnAccountButton.setOnClickListener {
+            findNavController().navigate(R.id.action_signUpOrLoginFragment_to_signUpFragment)
+        }
+
+
 
 
         return binding.root
