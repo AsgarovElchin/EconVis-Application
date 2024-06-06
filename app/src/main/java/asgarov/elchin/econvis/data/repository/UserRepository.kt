@@ -12,4 +12,8 @@ class UserRepository @Inject constructor(private val apiService: ApiService) {
     suspend fun signUp(user: User): Response<ResponseBody> {
         return apiService.signUp(user)
     }
+
+    suspend fun signIn(email: String, password: String): Response<ResponseBody> {
+        return apiService.signIn(email, password)
+    }
 }

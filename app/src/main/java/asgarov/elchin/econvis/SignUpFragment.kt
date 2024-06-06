@@ -31,11 +31,7 @@ class SignUpFragment : Fragment() {
             val email = binding.emailSignUp.editText?.text.toString()
             val password = binding.passwordSignUp.editText?.text.toString()
 
-            val user = User(username, email, password)
-            viewModel.signUp(user)
-
             var hasError = false
-
 
             if (username.isEmpty()) {
                 binding.usernameSignUp.error = "Username cannot be empty"
