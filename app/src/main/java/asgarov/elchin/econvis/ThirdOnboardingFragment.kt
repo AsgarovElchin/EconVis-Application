@@ -7,8 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import asgarov.elchin.econvis.databinding.FragmentThirdOnboardingBinding
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class ThirdOnboardingFragment : Fragment() {
    private lateinit var binding: FragmentThirdOnboardingBinding
 

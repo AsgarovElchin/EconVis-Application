@@ -8,7 +8,9 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import asgarov.elchin.econvis.databinding.ActivityMainBinding
 import asgarov.elchin.econvis.utils.SharedPreferences
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val viewModel : MainViewModel by viewModels()
     private lateinit var navController: NavController

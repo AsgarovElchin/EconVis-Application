@@ -7,14 +7,18 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import asgarov.elchin.econvis.data.model.User
 import asgarov.elchin.econvis.data.repository.UserRepository
-import kotlinx.coroutines.isActive
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import okhttp3.ResponseBody
 import java.lang.Exception
+import javax.inject.Inject
 
-class SignUpViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class SignUpViewModel @Inject constructor(
+    application: Application,
+    private val userRepository: UserRepository
+) : AndroidViewModel(application) {
 
-    private val userRepository = UserRepository()
 
     private val _signupResult = MutableLiveData<Result<ResponseBody>>()
     val signupResult: LiveData<Result<ResponseBody>> = _signupResult

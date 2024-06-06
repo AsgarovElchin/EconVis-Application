@@ -8,7 +8,9 @@ import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import asgarov.elchin.econvis.databinding.FragmentSecondOnboardingBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SecondOnboardingFragment : Fragment() {
    private lateinit var binding: FragmentSecondOnboardingBinding
 

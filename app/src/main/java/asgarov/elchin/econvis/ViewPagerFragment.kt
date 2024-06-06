@@ -6,8 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import asgarov.elchin.econvis.databinding.FragmentViewPagerBinding
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class ViewPagerFragment : Fragment() {
    private lateinit var binding:FragmentViewPagerBinding
 

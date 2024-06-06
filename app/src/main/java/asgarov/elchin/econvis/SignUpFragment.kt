@@ -12,8 +12,9 @@ import androidx.navigation.fragment.findNavController
 import asgarov.elchin.econvis.data.model.User
 import asgarov.elchin.econvis.databinding.FragmentSignUpBinding
 import asgarov.ui.signup.SignUpViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class SignUpFragment : Fragment() {
     private lateinit var binding: FragmentSignUpBinding
     private lateinit var viewModel: SignUpViewModel
