@@ -16,4 +16,8 @@ class UserRepository @Inject constructor(private val apiService: ApiService) {
     suspend fun signIn(email: String, password: String): Response<ResponseBody> {
         return apiService.signIn(email, password)
     }
+
+    suspend fun requestPasswordReset(email: String): Response<ResponseBody> {
+        return apiService.requestPasswordReset(mapOf("email" to email))
+    }
 }

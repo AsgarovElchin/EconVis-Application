@@ -7,72 +7,13 @@
     tools:context=".LoginFragment">
 
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_login_google"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="80dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="@android:color/white"
-        android:drawableLeft="@drawable/google_icon"
-        android:padding="10dp"
-        android:paddingStart="20dp"
-        android:paddingEnd="46dp"
-        android:strokeColor="@color/dark_purple"
-        android:text="Login with Google"
-        android:textColor="@color/black"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:strokeWidth="1dp" />
-
-
-    <LinearLayout
-        android:id="@+id/or_divider"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:layout_marginBottom="16dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/btn_login_google">
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1"
-            android:background="@color/gray" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp"
-            android:text="OR"
-            android:textColor="@color/black"
-            android:textSize="16sp" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1"
-            android:background="@color/gray" />
-    </LinearLayout>
-
-
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/email_layout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="80dp"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="16dp"
         android:hint="Email Address"
         app:boxBackgroundMode="outline"
         app:boxCornerRadiusBottomEnd="16dp"
@@ -82,7 +23,8 @@
         app:boxStrokeColor="@color/dark_purple"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/or_divider">
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_editor_absoluteY="272dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
