@@ -45,7 +45,9 @@ class ResetPasswordFragment : Fragment() {
                 onSuccess = {
                     Log.d("ResetPasswordFragment", "Password reset successful")
                     Toast.makeText(requireContext(), "Verification code sent to your email", Toast.LENGTH_SHORT).show()
-                    findNavController().navigate(R.id.action_resetPasswordFragment_to_newPasswordFragment)
+                    val email = binding.emailLayoutResetPassword.editText?.text.toString()
+                    val action = ResetPasswordFragmentDirections.actionResetPasswordFragmentToCodeVerificationFragment(email)
+                    findNavController().navigate(action)
                 },
                 onFailure = { throwable ->
                     Log.e("ResetPasswordFragment", "Password reset failed: ${throwable.message}", throwable)

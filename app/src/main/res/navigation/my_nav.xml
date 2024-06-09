@@ -7,7 +7,7 @@
         android:id="@+id/viewPagerFragment"
         android:name="asgarov.elchin.econvis.ViewPagerFragment"
         android:label="fragment_view_pager"
-        tools:layout="@layout/fragment_view_pager" >
+        tools:layout="@layout/fragment_view_pager">
         <action
             android:id="@+id/action_viewPagerFragment_to_signUpOrLoginFragment"
             app:destination="@id/signUpOrLoginFragment" />
@@ -16,7 +16,7 @@
         android:id="@+id/signUpOrLoginFragment"
         android:name="asgarov.elchin.econvis.SignUpOrLoginFragment"
         android:label="fragment_sign_up_or_login"
-        tools:layout="@layout/fragment_sign_up_or_login" >
+        tools:layout="@layout/fragment_sign_up_or_login">
         <action
             android:id="@+id/action_signUpOrLoginFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
@@ -36,7 +36,7 @@
         android:id="@+id/loginFragment"
         android:name="asgarov.elchin.econvis.LoginFragment"
         android:label="fragment_login"
-        tools:layout="@layout/fragment_login" >
+        tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/action_loginFragment_to_resetPasswordFragment"
             app:destination="@id/resetPasswordFragment" />
@@ -48,7 +48,7 @@
         android:id="@+id/signUpFragment"
         android:name="asgarov.elchin.econvis.SignUpFragment"
         android:label="fragment_sign_up"
-        tools:layout="@layout/fragment_sign_up" >
+        tools:layout="@layout/fragment_sign_up">
         <action
             android:id="@+id/action_signUpFragment_to_homeFragment"
             app:destination="@id/homeFragment" />
@@ -62,9 +62,38 @@
         android:id="@+id/resetPasswordFragment"
         android:name="asgarov.elchin.econvis.ResetPasswordFragment"
         android:label="fragment_reset_password"
-        tools:layout="@layout/fragment_reset_password" >
+        tools:layout="@layout/fragment_reset_password">
         <action
-            android:id="@+id/action_resetPasswordFragment_to_newPasswordFragment"
-            app:destination="@id/newPasswordFragment" />
+            android:id="@+id/action_resetPasswordFragment_to_codeVerificationFragment"
+            app:destination="@id/codeVerificationFragment">
+            <argument
+                android:name="email"
+                app:argType="string"
+                app:nullable="false"
+                />
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/codeVerificationFragment"
+        android:name="asgarov.elchin.econvis.CodeVerificationFragment"
+        android:label="fragment_code_verification"
+        tools:layout="@layout/fragment_code_verification">
+        <argument
+            android:name="email"
+            app:argType="string"
+            app:nullable="false" />
+        <action
+            android:id="@+id/action_codeVerificationFragment_to_newPasswordFragment"
+            app:destination="@id/newPasswordFragment" >
+            <argument
+                android:name="email"
+                app:argType="string"
+                app:nullable="false" />
+            <argument
+                android:name="code"
+                app:argType="string"
+                app:nullable="false" />
+
+        </action>
     </fragment>
 </navigation>

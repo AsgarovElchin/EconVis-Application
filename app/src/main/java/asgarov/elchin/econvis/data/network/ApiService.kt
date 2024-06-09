@@ -25,10 +25,10 @@ interface ApiService {
     suspend fun requestPasswordReset(@Body emailRequest: Map<String, String>): Response<ResponseBody>
 
     @POST("password/verify-code")
-    suspend fun verifyCode(@Body verificationData: VerificationData): Response<Void>
+    suspend fun verifyCode(@Body verificationData: VerificationData): Response<ResponseBody>
 
     @POST("password/reset")
-    suspend fun resetPassword(@Body resetData: ResetData): Response<Void>
-
-
+    suspend fun resetPassword(@Body resetData: ResetData): Response<ResponseBody>
 }
+
+
