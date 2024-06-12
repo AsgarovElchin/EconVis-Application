@@ -1,61 +1,65 @@
 package asgarov.elchin.econvis
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import asgarov.elchin.econvis.databinding.FragmentNewPasswordBinding
+import asgarov.ui.resest_password.ResetPasswordViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [NewPasswordFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 @AndroidEntryPoint
 class NewPasswordFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var binding: FragmentNewPasswordBinding
+    private val resetPasswordViewModel: ResetPasswordViewModel by viewModels()
+    private val args: NewPasswordFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_new_password, container, false)
-    }
+    ): View {
+        binding = FragmentNewPasswordBinding.inflate(inflater, container, false)
+        val email = args.email
+        val code = args.code
+        Log.d("NewPasswordFragment", "Email: $email, Code: $code")
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment NewPasswordFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            NewPasswordFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+        binding.btnLogin12.setOnClickListener {
+            val newPassword = binding.oldPasswordLayoutResetPassword.editText?.text.toString()
+            val confirmPassword = binding.newPasswordLayoutResetPassword.editText?.text.toString()
+            if (newPassword.isNotEmpty() && confirmPassword.isNotEmpty()) {
+                if (newPassword == confirmPassword) {
+                    Log.d("NewPasswordFragment", "Passwords match, attempting to reset password")
+                    resetPasswordViewModel.resetPassword(email, code, newPassword)
+                } else {
+                    Toast.makeText(requireContext(), "Passwords do not match", Toast.LENGTH_SHORT).show()
                 }
+            } else {
+                Toast.makeText(requireContext(), "Please enter the new password and confirm it", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        resetPasswordViewModel.resetResult.observe(viewLifecycleOwner, Observer { result ->
+            result.fold(
+                onSuccess = {
+                    Log.d("NewPasswordFragment", "Password reset successful")
+                    Toast.makeText(requireContext(), "Password reset successfully", Toast.LENGTH_SHORT).show()
+                    findNavController().navigate(R.id.action_newPasswordFragment_to_loginFragment)
+                },
+                onFailure = { throwable ->
+                    Log.e("NewPasswordFragment", "Password reset failed: ${throwable.message}", throwable)
+                    Toast.makeText(requireContext(), throwable.message ?: "Unknown error occurred", Toast.LENGTH_SHORT).show()
+                }
+            )
+        })
+
+        return binding.root
     }
 }

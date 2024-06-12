@@ -31,16 +31,12 @@ class ViewPagerFragment : Fragment() {
 
 
 
-
         return binding.root
     }
-
 
     fun nextPage() {
         binding.viewPager.currentItem = binding.viewPager.currentItem + 1
     }
-
-
 
 
 }

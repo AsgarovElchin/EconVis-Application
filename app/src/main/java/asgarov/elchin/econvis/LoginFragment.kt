@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import asgarov.elchin.econvis.databinding.FragmentLoginBinding
+import asgarov.elchin.econvis.utils.SharedPreferences
 import asgarov.ui.login.LogInViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -71,6 +72,8 @@ class LoginFragment : Fragment() {
                         .show()
                 }
             })
+
+            SharedPreferences.setUserLoggedIn(requireContext(), true)
 
         }
 
