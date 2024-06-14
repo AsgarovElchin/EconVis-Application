@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/worldMapFragment"
+        android:icon="@drawable/places_icon"
+        android:title="Map" />
+
+    <item
+        android:id="@+id/comparisonFragment"
+        android:icon="@drawable/charts_icon"
+        android:title="Chart" />
+    <item
+        android:id="@+id/savedChartsFragment"
+        android:icon="@drawable/favorites_icon"
+        android:title="Saved Chart" />
+    <item
+        android:id="@+id/settingsFragment"
+        android:icon="@drawable/settings_icon"
+        android:title="Setting" />
+
+
+</menu>

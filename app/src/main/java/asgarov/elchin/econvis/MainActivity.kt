@@ -6,13 +6,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.setupWithNavController
 import asgarov.elchin.econvis.databinding.ActivityMainBinding
 import asgarov.elchin.econvis.utils.SharedPreferences
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    private val viewModel : MainViewModel by viewModels()
+    private val viewModel: MainViewModel by viewModels()
     private lateinit var navController: NavController
     private lateinit var binding: ActivityMainBinding
 
@@ -35,20 +36,28 @@ class MainActivity : AppCompatActivity() {
         val navInflater = navController.navInflater
         val navGraph = navInflater.inflate(R.navigation.my_nav)
 
+        navController.setGraph(R.navigation.my_nav)
+
         // Set the start destination based on conditions
         when {
             isUserLoggedIn() -> {
-                navGraph.setStartDestination(R.id.homeFragment)
+                navGraph.setStartDestination(R.id.comparisonFragment)
             }
+
             isUserOnboarded() -> {
                 navGraph.setStartDestination(R.id.signUpOrLoginFragment)
             }
+
             else -> {
                 navGraph.setStartDestination(R.id.viewPagerFragment)
             }
         }
 
-        navController.graph = navGraph
+
+
+
+
+
     }
 
     private fun isUserLoggedIn(): Boolean {
@@ -56,7 +65,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun isUserOnboarded(): Boolean {
-       return SharedPreferences.isUserOnboarded(this)
+        return SharedPreferences.isUserOnboarded(this)
     }
 }
 

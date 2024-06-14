@@ -62,7 +62,7 @@ class LoginFragment : Fragment() {
 
             viewModel.signInResult.observe(viewLifecycleOwner, Observer { result ->
                 result.onSuccess { message ->
-                    findNavController().navigate(R.id.action_loginFragment_to_homeFragment)
+                    findNavController().navigate(R.id.action_loginFragment_to_menuContainerActivity)
                 }.onFailure { exception ->
                     Toast.makeText(
                         context,

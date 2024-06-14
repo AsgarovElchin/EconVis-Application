@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/menu_nav"
+    app:startDestination="@id/worldMapFragment">
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="asgarov.elchin.econvis.SettingsFragment"
+        android:label="Settings"
+        tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/comparisonFragment"
+        android:name="asgarov.elchin.econvis.ComparisonFragment"
+        android:label="Inequality Comparison"
+        tools:layout="@layout/fragment_comparison" />
+    <fragment
+        android:id="@+id/savedChartsFragment"
+        android:name="asgarov.elchin.econvis.SavedChartsFragment"
+        android:label="Saved Charts"
+        tools:layout="@layout/fragment_saved_charts" />
+    <fragment
+        android:id="@+id/worldMapFragment"
+        android:name="asgarov.elchin.econvis.WorldMapFragment"
+        android:label="World Map"
+        tools:layout="@layout/fragment_world_map" />
+</navigation>

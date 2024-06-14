@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/my_nav"
     xmlns:tools="http://schemas.android.com/tools"
     app:startDestination="@id/viewPagerFragment">
     <fragment
@@ -23,15 +24,8 @@
         <action
             android:id="@+id/action_signUpOrLoginFragment_to_signUpFragment"
             app:destination="@id/signUpFragment" />
-        <action
-            android:id="@+id/action_signUpOrLoginFragment_to_signUpFragment2"
-            app:destination="@id/signUpFragment" />
+
     </fragment>
-    <fragment
-        android:id="@+id/homeFragment"
-        android:name="asgarov.elchin.econvis.HomeFragment"
-        android:label="fragment_home"
-        tools:layout="@layout/fragment_home" />
     <fragment
         android:id="@+id/loginFragment"
         android:name="asgarov.elchin.econvis.LoginFragment"
@@ -41,8 +35,10 @@
             android:id="@+id/action_loginFragment_to_resetPasswordFragment"
             app:destination="@id/resetPasswordFragment" />
         <action
-            android:id="@+id/action_loginFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
+            android:id="@+id/action_loginFragment_to_menuContainerActivity"
+            app:destination="@id/menuContainerActivity" />
+
+
     </fragment>
     <fragment
         android:id="@+id/signUpFragment"
@@ -50,14 +46,14 @@
         android:label="fragment_sign_up"
         tools:layout="@layout/fragment_sign_up">
         <action
-            android:id="@+id/action_signUpFragment_to_homeFragment"
-            app:destination="@id/homeFragment" />
+            android:id="@+id/action_signUpFragment_to_menuContainerActivity"
+            app:destination="@id/menuContainerActivity" />
     </fragment>
     <fragment
         android:id="@+id/newPasswordFragment"
         android:name="asgarov.elchin.econvis.NewPasswordFragment"
         android:label="fragment_new_password"
-        tools:layout="@layout/fragment_new_password" >
+        tools:layout="@layout/fragment_new_password">
         <argument
             android:name="email"
             app:argType="string"
@@ -81,8 +77,7 @@
             <argument
                 android:name="email"
                 app:argType="string"
-                app:nullable="false"
-                />
+                app:nullable="false" />
         </action>
     </fragment>
     <fragment
@@ -96,7 +91,7 @@
             app:nullable="false" />
         <action
             android:id="@+id/action_codeVerificationFragment_to_newPasswordFragment"
-            app:destination="@id/newPasswordFragment" >
+            app:destination="@id/newPasswordFragment">
             <argument
                 android:name="email"
                 app:argType="string"
@@ -108,4 +103,9 @@
 
         </action>
     </fragment>
+    <activity
+        android:id="@+id/menuContainerActivity"
+        android:name="asgarov.elchin.econvis.MenuContainerActivity"
+        android:label="activity_menu_container"
+        tools:layout="@layout/activity_menu_container" />
 </navigation>
