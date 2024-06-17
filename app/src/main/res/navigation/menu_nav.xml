@@ -22,7 +22,7 @@
         tools:layout="@layout/fragment_saved_charts" />
     <fragment
         android:id="@+id/worldMapFragment"
-        android:name="asgarov.elchin.econvis.WorldMapFragment"
+        android:name="asgarov.ui.world_map.WorldMapFragment"
         android:label="World Map"
         tools:layout="@layout/fragment_world_map" />
 </navigation>

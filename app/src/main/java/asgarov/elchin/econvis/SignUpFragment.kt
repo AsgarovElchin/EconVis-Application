@@ -70,6 +70,7 @@ class SignUpFragment : Fragment() {
         viewModel.signupResult.observe(viewLifecycleOwner, Observer { result ->
             result.onSuccess {
                 findNavController().navigate(R.id.action_signUpFragment_to_menuContainerActivity)
+
             }.onFailure {
                 Toast.makeText(context, "Sign up failed: ${it.message}", Toast.LENGTH_SHORT).show()
             }

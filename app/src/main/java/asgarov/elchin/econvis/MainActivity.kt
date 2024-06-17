@@ -36,28 +36,21 @@ class MainActivity : AppCompatActivity() {
         val navInflater = navController.navInflater
         val navGraph = navInflater.inflate(R.navigation.my_nav)
 
-        navController.setGraph(R.navigation.my_nav)
-
         // Set the start destination based on conditions
         when {
             isUserLoggedIn() -> {
-                navGraph.setStartDestination(R.id.comparisonFragment)
+                navGraph.setStartDestination(R.id.menuContainerActivity)
             }
-
             isUserOnboarded() -> {
                 navGraph.setStartDestination(R.id.signUpOrLoginFragment)
             }
-
             else -> {
                 navGraph.setStartDestination(R.id.viewPagerFragment)
             }
         }
 
-
-
-
-
-
+        // Set the graph to the navController
+        navController.graph = navGraph
     }
 
     private fun isUserLoggedIn(): Boolean {
@@ -68,5 +61,4 @@ class MainActivity : AppCompatActivity() {
         return SharedPreferences.isUserOnboarded(this)
     }
 }
-
 
