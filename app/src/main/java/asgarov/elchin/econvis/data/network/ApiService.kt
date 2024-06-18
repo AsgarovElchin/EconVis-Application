@@ -1,9 +1,14 @@
 package asgarov.elchin.econvis.data.network
 
+import asgarov.elchin.econvis.data.model.Country
 import asgarov.elchin.econvis.data.model.GiniData
+import asgarov.elchin.econvis.data.model.Indicator
+import asgarov.elchin.econvis.data.model.Report
+import asgarov.elchin.econvis.data.model.ReportRequest
 import asgarov.elchin.econvis.data.model.ResetData
 import asgarov.elchin.econvis.data.model.User
 import asgarov.elchin.econvis.data.model.VerificationData
+import asgarov.elchin.econvis.data.model.Year
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Response
@@ -36,6 +41,20 @@ interface ApiService {
 
     @GET("api/gini/year/{year}")
     fun getGiniDataByYear(@Path("year") year: Int): Call<List<GiniData>>
+
+    @POST("api/reports")
+    fun getReports(@Body reportRequest: ReportRequest): Call<List<Report>>
+
+    @GET("api/reports/countries")
+    fun getCountries(): Call<List<Country>>
+
+    @GET("api/reports/indicators")
+    fun getIndicators(): Call<List<Indicator>>
+
+    @GET("api/reports/years")
+    fun getYears(): Call<List<Year>>
+
 }
+
 
 
