@@ -23,6 +23,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class WorldMapFragment : Fragment() {
     private lateinit var binding: FragmentWorldMapBinding
     private val worldMapViewModel: WorldMapViewModel by viewModels()
+    private lateinit var webView: WebView
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreateView(
@@ -31,17 +32,19 @@ class WorldMapFragment : Fragment() {
     ): View? {
         binding = FragmentWorldMapBinding.inflate(inflater, container, false)
 
-        val webView: WebView = binding.webview
+        webView = binding.webview
         val webSettings: WebSettings = webView.settings
         webSettings.javaScriptEnabled = true
         webSettings.domStorageEnabled = true  // Enable DOM storage
         webSettings.useWideViewPort = true  // Enable viewport meta tag
-        webSettings.loadWithOverviewMode =
-            true  // Zoom out if the content width is greater than the width of the WebView
-        webView.setLayerType(
-            View.LAYER_TYPE_HARDWARE,
-            null
-        )  // Enable hardware acceleration for better performance
+        webSettings.loadWithOverviewMode = true  // Zoom out if the content width is greater than the width of the WebView
+
+        // Enable built-in zoom controls
+        webSettings.setSupportZoom(true)
+        webSettings.builtInZoomControls = true
+        webSettings.displayZoomControls = false  // Hide the zoom controls
+
+        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)  // Enable hardware acceleration for better performance
 
         // Set the WebViewClient
         webView.webViewClient = WebViewClient()
@@ -79,6 +82,17 @@ class WorldMapFragment : Fragment() {
             }
         })
 
+        // Set initial scale to 100%
+        webView.setInitialScale(100)
+
+        // Set up zoom in and zoom out buttons
+        binding.zoomInButton.setOnClickListener {
+            webView.zoomIn()
+        }
+        binding.zoomOutButton.setOnClickListener {
+            webView.zoomOut()
+        }
+
         return binding.root
     }
 
@@ -106,12 +120,13 @@ class WorldMapFragment : Fragment() {
                 $dataRows
               ]);
 
-         
-             var options = {
-               colorAxis: {colors: ['#AC78CE', '#5A3A85']} // Dark purple to darkest purple gradient
-             };
-             
-            
+              var options = {
+                colorAxis: {colors: ['#add8e6', '#d2691e']}, // Dark purple to darkest purple gradient
+                magnifyingGlass: {enable: true, zoomFactor: 7.5}, // Magnify the region around the cursor
+                datalessRegionColor: '#f5f5f5',
+                defaultColor: '#f5f5f5'
+              };
+
               var chart = new google.visualization.GeoChart(document.getElementById('regions_div'));
 
               chart.draw(data, options);
@@ -122,7 +137,7 @@ class WorldMapFragment : Fragment() {
           <div id='regions_div' style='width: 100%; height: 100%;'></div>
         </body>
         </html>
-    """.trimIndent()
+        """.trimIndent()
 
         Log.d("WorldMapFragment", "HTML content: $html")
         webView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)

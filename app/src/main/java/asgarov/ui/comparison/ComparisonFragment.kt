@@ -1,4 +1,4 @@
-package asgarov.elchin.econvis
+package asgarov.ui.comparison
 
 
 
@@ -14,15 +14,15 @@ import androidx.lifecycle.Observer
 import asgarov.elchin.econvis.data.model.Report
 import asgarov.elchin.econvis.data.model.ReportRequest
 import asgarov.elchin.econvis.databinding.FragmentComparisonBinding
-import asgarov.ui.comparison.ComparisonViewModel
 import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.charts.HorizontalBarChart
 import com.github.mikephil.charting.charts.LineChart
-import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.data.CombinedData
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
@@ -130,11 +130,19 @@ class ComparisonFragment : Fragment() {
         binding.barChartIcon.setOnClickListener {
             binding.barChart.visibility = View.VISIBLE
             binding.horizontalBarChart.visibility = View.GONE
+            binding.lineChart.visibility = View.GONE
         }
 
         binding.horizontalBarChartIcon.setOnClickListener {
             binding.barChart.visibility = View.GONE
             binding.horizontalBarChart.visibility = View.VISIBLE
+            binding.lineChart.visibility = View.GONE
+        }
+
+        binding.lineChartIcon.setOnClickListener {
+            binding.barChart.visibility = View.GONE
+            binding.horizontalBarChart.visibility = View.GONE
+            binding.lineChart.visibility = View.VISIBLE
         }
     }
 
@@ -180,10 +188,12 @@ class ComparisonFragment : Fragment() {
     private fun updateChart(reports: List<Report>) {
         val barChart: BarChart = binding.barChart
         val horizontalBarChart: HorizontalBarChart = binding.horizontalBarChart
+        val lineChart: LineChart = binding.lineChart
 
         // Clear previous data
         barChart.clear()
         horizontalBarChart.clear()
+        lineChart.clear()
 
         // Group the data by indicator, year, and country
         val groupedData = reports.groupBy { it.indicator.name }
@@ -198,10 +208,12 @@ class ComparisonFragment : Fragment() {
 
         val barEntries = ArrayList<BarEntry>()
         val horizontalBarEntries = ArrayList<BarEntry>()
+        val lineEntries = ArrayList<Entry>()
         val xLabels = ArrayList<String>()
         groupedData.forEachIndexed { index, (indicator, year, report) ->
             barEntries.add(BarEntry(index.toFloat(), report.data.toFloat()))
             horizontalBarEntries.add(BarEntry(index.toFloat(), report.data.toFloat()))
+            lineEntries.add(Entry(index.toFloat(), report.data.toFloat()))
             xLabels.add("${report.country.name} - $year")
         }
 
@@ -247,11 +259,31 @@ class ComparisonFragment : Fragment() {
         horizontalBarXAxis.setDrawLabels(true)
         horizontalBarXAxis.labelRotationAngle = -45f
 
+        // Set up LineChart
+        val lineDataSet = LineDataSet(lineEntries, "Inequality Comparison")
+        lineDataSet.colors = ColorTemplate.COLORFUL_COLORS.toList()
+        lineDataSet.valueTextSize = 12f
+        val lineData = LineData(lineDataSet)
+        lineChart.data = lineData
+
+        // Customize LineChart appearance
+        lineChart.description.isEnabled = false
+        lineChart.setDrawGridBackground(false)
+
+        val lineXAxis = lineChart.xAxis
+        lineXAxis.valueFormatter = IndexAxisValueFormatter(xLabels)
+        lineXAxis.granularity = 1f
+        lineXAxis.position = XAxis.XAxisPosition.BOTTOM
+        lineXAxis.setDrawLabels(true)
+        lineXAxis.labelRotationAngle = -45f
+
         // Refresh the charts
         barChart.invalidate()
         horizontalBarChart.invalidate()
+        lineChart.invalidate()
 
         barChart.legend.isEnabled = false
         horizontalBarChart.legend.isEnabled = false
+        lineChart.legend.isEnabled = false
     }
 }

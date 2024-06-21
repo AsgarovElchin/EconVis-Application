@@ -3,8 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+   android:background="@color/white"
     android:layout_height="match_parent"
-    tools:context=".ComparisonFragment">
+    tools:context="asgarov.ui.comparison.ComparisonFragment">
 
     <Button
         android:id="@+id/selectCountriesButton"
@@ -66,7 +67,7 @@
         android:layout_marginStart="8dp"
         app:layout_constraintTop_toBottomOf="@id/selectYearsButton"
         app:layout_constraintStart_toStartOf="parent"
-        android:src="@drawable/bar_chart"
+        android:src="@drawable/bar_chart_vertical"
         android:id="@+id/barChartIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
@@ -75,8 +76,17 @@
         android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@id/selectYearsButton"
         app:layout_constraintStart_toEndOf="@id/barChartIcon"
-        android:src="@drawable/line_chart"
+        android:src="@drawable/bar_chart_horizontal"
         android:id="@+id/horizontalBarChartIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <ImageButton
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/selectYearsButton"
+        app:layout_constraintStart_toEndOf="@id/horizontalBarChartIcon"
+        android:src="@drawable/line_chart"
+        android:id="@+id/lineChartIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
@@ -98,6 +108,20 @@
         android:layout_marginEnd="4dp"
         android:layout_marginBottom="32dp"
         android:id="@+id/horizontalBarChart"
+        android:layout_width="0dp"
+        android:visibility="invisible"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/barChartIcon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <com.github.mikephil.charting.charts.LineChart
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="32dp"
+        android:id="@+id/lineChart"
         android:layout_width="0dp"
         android:visibility="invisible"
         android:layout_height="0dp"

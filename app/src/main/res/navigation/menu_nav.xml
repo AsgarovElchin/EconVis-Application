@@ -12,7 +12,7 @@
         tools:layout="@layout/fragment_settings" />
     <fragment
         android:id="@+id/comparisonFragment"
-        android:name="asgarov.elchin.econvis.ComparisonFragment"
+        android:name="asgarov.ui.comparison.ComparisonFragment"
         android:label="Inequality Comparison"
         tools:layout="@layout/fragment_comparison" />
     <fragment
