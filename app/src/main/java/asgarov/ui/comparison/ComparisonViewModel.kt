@@ -23,8 +23,8 @@ class ComparisonViewModel @Inject constructor(
     private val reportRepository: ReportRepository
 ) : AndroidViewModel(application) {
 
-    private val _countries = MutableLiveData<Result<List<Country>>>()
-    val countries: LiveData<Result<List<Country>>> = _countries
+    private val _countriesByRegion = MutableLiveData<Map<String, List<Country>>>()
+    val countriesByRegion: LiveData<Map<String, List<Country>>> = _countriesByRegion
 
     private val _indicators = MutableLiveData<Result<List<Indicator>>>()
     val indicators: LiveData<Result<List<Indicator>>> = _indicators
@@ -39,17 +39,18 @@ class ComparisonViewModel @Inject constructor(
         reportRepository.getCountries().enqueue(object : Callback<List<Country>> {
             override fun onResponse(call: Call<List<Country>>, response: Response<List<Country>>) {
                 if (response.isSuccessful) {
-                    _countries.postValue(Result.success(response.body()!!))
-                } else {
-                    _countries.postValue(Result.failure(Throwable(response.message())))
+                    val countries = response.body()!!
+                    val groupedByRegion = countries.groupBy { it.region }
+                    _countriesByRegion.postValue(groupedByRegion)
                 }
             }
 
             override fun onFailure(call: Call<List<Country>>, t: Throwable) {
-                _countries.postValue(Result.failure(t))
+
             }
         })
     }
+
 
     fun fetchIndicators() {
         reportRepository.getIndicators().enqueue(object : Callback<List<Indicator>> {

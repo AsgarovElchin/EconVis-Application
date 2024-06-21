@@ -1,7 +1,6 @@
 package asgarov.ui.comparison
 
 
-
 import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
@@ -9,11 +8,15 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ExpandableListView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import asgarov.elchin.econvis.R
+import asgarov.elchin.econvis.data.model.Country
 import asgarov.elchin.econvis.data.model.Report
 import asgarov.elchin.econvis.data.model.ReportRequest
 import asgarov.elchin.econvis.databinding.FragmentComparisonBinding
+import asgarov.elchin.econvis.utils.RegionExpandableListAdapter
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.charts.HorizontalBarChart
@@ -30,6 +33,7 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
 import dagger.hilt.android.AndroidEntryPoint
 
+
 @AndroidEntryPoint
 class ComparisonFragment : Fragment() {
     private lateinit var binding: FragmentComparisonBinding
@@ -45,7 +49,6 @@ class ComparisonFragment : Fragment() {
     ): View {
         binding = FragmentComparisonBinding.inflate(inflater, container, false)
 
-        // Fetch the data when the fragment is created
         viewModel.fetchCountries()
         viewModel.fetchIndicators()
         viewModel.fetchYears()
@@ -57,17 +60,12 @@ class ComparisonFragment : Fragment() {
     }
 
     private fun setupObservers() {
-        viewModel.countries.observe(viewLifecycleOwner, Observer { result ->
-            result.onSuccess { countries ->
-                Log.d("ComparisonFragment", "Countries: $countries")
-                val countryNames = countries.map { it.name }.toTypedArray()
-                val countryIds = countries.map { it.id }.toLongArray()
+        viewModel.countriesByRegion.observe(viewLifecycleOwner, Observer { groupedCountries ->
+            val regionList = groupedCountries.keys.toList()
+            val countryMap = groupedCountries.mapValues { entry -> entry.value }
 
-                binding.selectCountriesButton.setOnClickListener {
-                    showMultiSelectDialog("Select Countries", countryNames, countryIds, selectedCountryIds)
-                }
-            }.onFailure { throwable ->
-                Log.e("ComparisonFragment", "Error fetching countries", throwable)
+            binding.selectCountriesButton.setOnClickListener {
+                showRegionSelectDialog("Select Countries", regionList, countryMap)
             }
         })
 
@@ -180,6 +178,26 @@ class ComparisonFragment : Fragment() {
                 selectedIds.clear()
                 selectedIds.add(ids[which])
                 dialog.dismiss()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showRegionSelectDialog(
+        title: String,
+        regions: List<String>,
+        countryMap: Map<String, List<Country>>
+    ) {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_categorized_countries, null)
+        val expandableListView = dialogView.findViewById<ExpandableListView>(R.id.expandableListView)
+        val adapter = RegionExpandableListAdapter(requireContext(), regions, countryMap, selectedCountryIds)
+        expandableListView.setAdapter(adapter)
+
+        AlertDialog.Builder(requireContext())
+            .setTitle(title)
+            .setView(dialogView)
+            .setPositiveButton("OK") { _, _ ->
+                // Handle OK button click if necessary
             }
             .setNegativeButton("Cancel", null)
             .show()
