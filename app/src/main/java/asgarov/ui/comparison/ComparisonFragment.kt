@@ -2,7 +2,12 @@ package asgarov.ui.comparison
 
 
 import android.app.AlertDialog
+import android.content.Context
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -18,20 +23,20 @@ import asgarov.elchin.econvis.data.model.ReportRequest
 import asgarov.elchin.econvis.databinding.FragmentComparisonBinding
 import asgarov.elchin.econvis.utils.RegionExpandableListAdapter
 import com.github.mikephil.charting.charts.BarChart
-import com.github.mikephil.charting.charts.CombinedChart
 import com.github.mikephil.charting.charts.HorizontalBarChart
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.data.CombinedData
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
 import dagger.hilt.android.AndroidEntryPoint
+import java.io.File
+import java.io.FileOutputStream
 
 
 @AndroidEntryPoint
@@ -121,6 +126,16 @@ class ComparisonFragment : Fragment() {
             } else {
                 Log.e("ComparisonFragment", "Please select at least one indicator.")
             }
+        }
+
+        binding.saveChartButton.setOnClickListener {
+            val visibleChart = when {
+                binding.barChart.visibility == View.VISIBLE -> binding.barChart
+                binding.horizontalBarChart.visibility == View.VISIBLE -> binding.horizontalBarChart
+                binding.lineChart.visibility == View.VISIBLE -> binding.lineChart
+                else -> null
+            }
+            visibleChart?.let { saveChart(it) }
         }
     }
 
@@ -248,7 +263,6 @@ class ComparisonFragment : Fragment() {
         // Set up BarChart
         val barDataSet = BarDataSet(barEntries, "Inequality Comparison")
         barDataSet.colors = ColorTemplate.COLORFUL_COLORS.toList()
-        barDataSet.valueTextSize = 12f
         val barData = BarData(barDataSet)
         barChart.data = barData
 
@@ -313,5 +327,26 @@ class ComparisonFragment : Fragment() {
         barChart.legend.isEnabled = false
         horizontalBarChart.legend.isEnabled = false
         lineChart.legend.isEnabled = false
+    }
+
+    private fun saveChart(chart: View) {
+        val bitmap = Bitmap.createBitmap(chart.width, chart.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        chart.draw(canvas)
+
+        val file = File(requireContext().filesDir, "chart_${System.currentTimeMillis()}.png")
+        val outputStream = FileOutputStream(file)
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+        outputStream.flush()
+        outputStream.close()
+
+        val sharedPreferences = requireContext().getSharedPreferences("saved_charts", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        val filePaths = sharedPreferences.getStringSet("file_paths", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+        filePaths.add(file.absolutePath)
+        editor.putStringSet("file_paths", filePaths)
+        editor.apply()
+
+        Log.d("ComparisonFragment", "Chart saved to ${file.absolutePath}")
     }
 }
