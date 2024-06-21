@@ -197,10 +197,20 @@ class ComparisonFragment : Fragment() {
             .setTitle(title)
             .setView(dialogView)
             .setPositiveButton("OK") { _, _ ->
-                // Handle OK button click if necessary
+                updateLineChartIconState()
             }
             .setNegativeButton("Cancel", null)
             .show()
+    }
+
+    private fun updateLineChartIconState() {
+        if (selectedCountryIds.size > 1) {
+            binding.lineChartIcon.isEnabled = false
+            binding.lineChartIcon.alpha = 0.5f
+        } else {
+            binding.lineChartIcon.isEnabled = true
+            binding.lineChartIcon.alpha = 1.0f
+        }
     }
 
     private fun updateChart(reports: List<Report>) {
