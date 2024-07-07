@@ -86,6 +86,10 @@ dependencies {
 
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
+    implementation 'com.github.highcharts:highcharts-android:11.4.3'
+
+
+
 
 
 

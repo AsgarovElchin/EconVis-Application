@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import asgarov.elchin.econvis.databinding.FragmentThirdOnboardingBinding
-import asgarov.elchin.econvis.utils.SharedPreferences
+import asgarov.elchin.econvis.utils.PreferenceHelper
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -22,7 +22,7 @@ class ThirdOnboardingFragment : Fragment() {
 
 
         binding.ob3Button1.setOnClickListener {
-            SharedPreferences.setUserOnboarded(requireContext(), true)
+            PreferenceHelper.setUserOnboarded(requireContext(), true)
             findNavController().navigate(R.id.action_viewPagerFragment_to_signUpOrLoginFragment)
         }
 

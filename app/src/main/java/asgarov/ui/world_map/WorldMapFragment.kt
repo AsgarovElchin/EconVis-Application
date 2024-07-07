@@ -2,6 +2,8 @@ package asgarov.ui.world_map
 
 import android.R
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -17,7 +19,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import asgarov.elchin.econvis.data.model.GiniData
 import asgarov.elchin.econvis.databinding.FragmentWorldMapBinding
+import asgarov.elchin.econvis.utils.PreferenceHelper
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.Locale
 
 @AndroidEntryPoint
 class WorldMapFragment : Fragment() {
@@ -30,6 +34,9 @@ class WorldMapFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // Apply language preference
+        applyLanguagePreference(requireContext())
+
         binding = FragmentWorldMapBinding.inflate(inflater, container, false)
 
         webView = binding.webview
@@ -37,14 +44,18 @@ class WorldMapFragment : Fragment() {
         webSettings.javaScriptEnabled = true
         webSettings.domStorageEnabled = true  // Enable DOM storage
         webSettings.useWideViewPort = true  // Enable viewport meta tag
-        webSettings.loadWithOverviewMode = true  // Zoom out if the content width is greater than the width of the WebView
+        webSettings.loadWithOverviewMode =
+            true  // Zoom out if the content width is greater than the width of the WebView
 
         // Enable built-in zoom controls
         webSettings.setSupportZoom(true)
         webSettings.builtInZoomControls = true
         webSettings.displayZoomControls = false  // Hide the zoom controls
 
-        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)  // Enable hardware acceleration for better performance
+        webView.setLayerType(
+            View.LAYER_TYPE_HARDWARE,
+            null
+        )  // Enable hardware acceleration for better performance
 
         // Set the WebViewClient
         webView.webViewClient = WebViewClient()
@@ -53,7 +64,7 @@ class WorldMapFragment : Fragment() {
         WebView.setWebContentsDebuggingEnabled(true)
 
         val years = (1970..2020).toList()
-        val adapter = ArrayAdapter(requireContext(), R.layout.simple_spinner_item, years)
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, years)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.yearSpinner.adapter = adapter
 
@@ -141,5 +152,15 @@ class WorldMapFragment : Fragment() {
 
         Log.d("WorldMapFragment", "HTML content: $html")
         webView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
+    }
+
+    private fun applyLanguagePreference(context: Context) {
+        val language = PreferenceHelper.getLanguage(context)
+        val locale = Locale(language)
+        Locale.setDefault(locale)
+        val config = context.resources.configuration
+        config.setLocale(locale)
+        config.setLayoutDirection(locale)
+        context.resources.updateConfiguration(config, context.resources.displayMetrics)
     }
 }

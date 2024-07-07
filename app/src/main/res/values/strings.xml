@@ -1,5 +1,68 @@
 <resources>
+
+    <string-array name="language_array">
+        <item>English</item>
+        <item>Español</item>
+        <item>中文</item>
+        <item>العربية</item>
+        <item>Azərbaycan</item>
+        <item>हिन्दी</item>
+        <item>বাংলা</item>
+        <item>Português</item>
+        <item>Русский</item>
+        <item>اردو</item>
+    </string-array>
+
     <string name="app_name">EconVis</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="email_address">Email Address</string>
+    <string name="password">Password</string>
+    <string name="next">Next</string>
+    <string name="verification_code">Verification code</string>
+    <string name="to_reset_your_password_enter_the_code_that_is_sent_to_your_email_account">To reset your password, enter the code that is sent to your email account</string>
+    <string name="country_name">Country Name</string>
+    <string name="saved_chart_image">Saved Chart Image</string>
+    <string name="delete">Delete</string>
+    <string name="zoom_in">Zoom In</string>
+    <string name="zoom_out">Zoom Out</string>
+    <string name="login_or_sign_up">Login or Sign Up</string>
+    <string name="login">Login</string>
+    <string name="create_an_account">Create an account</string>
+    <string name="finish">Finish</string>
+    <string name="gain_valuable_insights_and_make_informed_decisions_with_our_easy_to_understand_charts_and_graphs">Gain valuable insights and make informed decisions with our easy to understand charts and graphs..</string>
+    <string name="get_insights">Get Insights</string>
+    <string name="enter_your_email_and_we_will_send_you_a_link_to_reset_your_password">Enter your email and we will send you a link to reset your password.</string>
+    <string name="email_address_">Email Address</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="your_new_password_must_be_different_from_previous_used_passwords">Your new password must be different from previous used passwords.</string>
+    <string name="password_text">Password</string>
+    <string name="password_">Password</string>
+    <string name="reset_password_">Reset Password</string>
+    <string name="explore_data">Explore Data</string>
+    <string name="dive_into_comprehensive_data_sets_and_uncover_trends_in_economic_disparity">Dive into comprehensive data sets and uncover trends in economic disparity.</string>
+    <string name="next_text_">Next</string>
+    <string name="welcome_to_econvis">Welcome to EconVis!</string>
+    <string name="discover_insights_into_economic_inequality_with_our_interactive_visualizations">Discover insights into economic inequality with our interactive visualizations.</string>
+    <string name="next_">Next</string>
+    <string name="select_indicators">Select Indicators</string>
+    <string name="select_years">Select Years</string>
+    <string name="save_chart">Save Chart</string>
+    <string name="apply">Apply</string>
+    <string name="select_countries">Select Countries</string>
+    <string name="vertical_bar_chart">Vertical bar chart</string>
+    <string name="horizontal_bar_chart">Horizontal bar chart</string>
+    <string name="line_chart">Line chart</string>
+    <string name="clear_all_charts">Clear All Charts</string>
+    <string name="your_email_address">Your email address</string>
+    <string name="your_username">Your username</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="your_password">Your password</string>
+    <string name="login_text_">Login</string>
+    <string name="change_language">Change Language</string>
+    <string name="log_out">Log Out</string>
+    <string name="dark_mode">Dark mode</string>
+    <string name="language">Language</string>
+    <string name="forgot_password">Forgot password?</string>
+
+
 </resources>

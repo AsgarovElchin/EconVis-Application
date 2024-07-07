@@ -11,14 +11,15 @@
         android:id="@+id/yearSpinner"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:spinnerMode="dropdown"
         android:dropDownWidth="match_parent"
-        app:layout_constraintTop_toTopOf="parent"
+        android:minHeight="48dp"
+        android:spinnerMode="dropdown"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <WebView
         android:layout_marginTop="16dp"
@@ -45,14 +46,16 @@
             android:id="@+id/zoomInButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Zoom In" />
+            android:text="@string/zoom_in"
+            style="?android:attr/buttonBarButtonStyle" />
 
         <Button
             android:id="@+id/zoomOutButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Zoom Out"
-            android:layout_marginStart="16dp" />
+            android:text="@string/zoom_out"
+            android:layout_marginStart="16dp"
+            style="?android:attr/buttonBarButtonStyle" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

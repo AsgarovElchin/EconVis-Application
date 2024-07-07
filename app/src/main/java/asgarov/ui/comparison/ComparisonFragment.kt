@@ -4,6 +4,7 @@ package asgarov.ui.comparison
 import android.app.AlertDialog
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Bundle
@@ -238,6 +239,11 @@ class ComparisonFragment : Fragment() {
         horizontalBarChart.clear()
         lineChart.clear()
 
+        // Determine the current theme
+        val isDarkMode = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        val textColor = if (isDarkMode) resources.getColor(R.color.white, null) else resources.getColor(R.color.black, null)
+        val backgroundColor = if (isDarkMode) resources.getColor(R.color.black, null) else resources.getColor(R.color.white, null)
+
         // Group the data by indicator, year, and country
         val groupedData = reports.groupBy { it.indicator.name }
             .flatMap { (indicator, indicatorReports) ->
@@ -263,6 +269,7 @@ class ComparisonFragment : Fragment() {
         // Set up BarChart
         val barDataSet = BarDataSet(barEntries, "Inequality Comparison")
         barDataSet.colors = ColorTemplate.COLORFUL_COLORS.toList()
+        barDataSet.valueTextColor = textColor
         val barData = BarData(barDataSet)
         barChart.data = barData
 
@@ -272,6 +279,7 @@ class ComparisonFragment : Fragment() {
         barChart.setMaxVisibleValueCount(60)
         barChart.setPinchZoom(false)
         barChart.setDrawGridBackground(false)
+        barChart.setBackgroundColor(backgroundColor)
 
         val barXAxis = barChart.xAxis
         barXAxis.valueFormatter = IndexAxisValueFormatter(xLabels)
@@ -279,11 +287,12 @@ class ComparisonFragment : Fragment() {
         barXAxis.position = XAxis.XAxisPosition.BOTTOM
         barXAxis.setDrawLabels(true)
         barXAxis.labelRotationAngle = -45f
+        barXAxis.textColor = textColor
 
         // Set up HorizontalBarChart
         val horizontalBarDataSet = BarDataSet(horizontalBarEntries, "Inequality Comparison")
         horizontalBarDataSet.colors = ColorTemplate.COLORFUL_COLORS.toList()
-        horizontalBarDataSet.valueTextSize = 12f
+        horizontalBarDataSet.valueTextColor = textColor
         val horizontalBarData = BarData(horizontalBarDataSet)
         horizontalBarChart.data = horizontalBarData
 
@@ -293,6 +302,7 @@ class ComparisonFragment : Fragment() {
         horizontalBarChart.setMaxVisibleValueCount(60)
         horizontalBarChart.setPinchZoom(false)
         horizontalBarChart.setDrawGridBackground(false)
+        horizontalBarChart.setBackgroundColor(backgroundColor)
 
         val horizontalBarXAxis = horizontalBarChart.xAxis
         horizontalBarXAxis.valueFormatter = IndexAxisValueFormatter(xLabels)
@@ -300,17 +310,19 @@ class ComparisonFragment : Fragment() {
         horizontalBarXAxis.position = XAxis.XAxisPosition.BOTTOM
         horizontalBarXAxis.setDrawLabels(true)
         horizontalBarXAxis.labelRotationAngle = -45f
+        horizontalBarXAxis.textColor = textColor
 
         // Set up LineChart
         val lineDataSet = LineDataSet(lineEntries, "Inequality Comparison")
         lineDataSet.colors = ColorTemplate.COLORFUL_COLORS.toList()
-        lineDataSet.valueTextSize = 12f
+        lineDataSet.valueTextColor = textColor
         val lineData = LineData(lineDataSet)
         lineChart.data = lineData
 
         // Customize LineChart appearance
         lineChart.description.isEnabled = false
         lineChart.setDrawGridBackground(false)
+        lineChart.setBackgroundColor(backgroundColor)
 
         val lineXAxis = lineChart.xAxis
         lineXAxis.valueFormatter = IndexAxisValueFormatter(xLabels)
@@ -318,6 +330,7 @@ class ComparisonFragment : Fragment() {
         lineXAxis.position = XAxis.XAxisPosition.BOTTOM
         lineXAxis.setDrawLabels(true)
         lineXAxis.labelRotationAngle = -45f
+        lineXAxis.textColor = textColor
 
         // Refresh the charts
         barChart.invalidate()

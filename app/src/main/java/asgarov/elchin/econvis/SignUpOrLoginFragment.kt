@@ -27,8 +27,8 @@ class SignUpOrLoginFragment : Fragment() {
         }
 
 
-
-
         return binding.root
     }
+
+
 }

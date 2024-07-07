@@ -1,15 +1,18 @@
 package asgarov.elchin.econvis
 
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.setupWithNavController
 import asgarov.elchin.econvis.databinding.ActivityMainBinding
-import asgarov.elchin.econvis.utils.SharedPreferences
+import asgarov.elchin.econvis.utils.PreferenceHelper
+import asgarov.elchin.econvis.utils.ThemeUtils
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.Locale
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -18,12 +21,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         installSplashScreen().apply {
             setKeepOnScreenCondition {
                 viewModel.isLoading.value
             }
         }
+
+        applyLanguagePreference(this)
+
+        if (ThemeUtils.isDarkMode(this)) {
+            ThemeUtils.setTheme(this, true)
+        }
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -41,9 +50,11 @@ class MainActivity : AppCompatActivity() {
             isUserLoggedIn() -> {
                 navGraph.setStartDestination(R.id.menuContainerActivity)
             }
+
             isUserOnboarded() -> {
                 navGraph.setStartDestination(R.id.signUpOrLoginFragment)
             }
+
             else -> {
                 navGraph.setStartDestination(R.id.viewPagerFragment)
             }
@@ -53,12 +64,21 @@ class MainActivity : AppCompatActivity() {
         navController.graph = navGraph
     }
 
+    fun applyLanguagePreference(context: Context) {
+        val language = PreferenceHelper.getLanguage(context)
+        val locale = Locale(language)
+        Locale.setDefault(locale)
+        val config = context.resources.configuration
+        config.setLocale(locale)
+        config.setLayoutDirection(locale)
+        context.resources.updateConfiguration(config, context.resources.displayMetrics)
+    }
+
     private fun isUserLoggedIn(): Boolean {
-        return SharedPreferences.isUserLoggedIn(this)
+        return PreferenceHelper.isUserLoggedIn(this)
     }
 
     private fun isUserOnboarded(): Boolean {
-        return SharedPreferences.isUserOnboarded(this)
+        return PreferenceHelper.isUserOnboarded(this)
     }
 }
-

@@ -16,7 +16,7 @@
         android:layout_marginTop="80dp"
         android:layout_marginEnd="20dp"
         android:fontFamily="@font/roboto"
-        android:text="To reset your password, enter the  code that is sent to your email account"
+        android:text="@string/to_reset_your_password_enter_the_code_that_is_sent_to_your_email_account"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -31,7 +31,7 @@
         android:layout_marginTop="50dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="16dp"
-        android:hint="Verification code"
+        android:hint="@string/verification_code"
         app:boxBackgroundMode="outline"
         app:boxCornerRadiusBottomEnd="16dp"
         app:boxCornerRadiusBottomStart="16dp"
@@ -47,7 +47,8 @@
             android:layout_height="wrap_content"
             android:drawablePadding="12dp"
             android:inputType="textEmailAddress"
-            android:paddingStart="16dp" />
+            android:paddingStart="16dp"
+            tools:ignore="RtlSymmetry,VisualLintTextFieldSize" />
     </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -59,12 +60,13 @@
         android:layout_marginTop="40dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="16dp"
-        android:text="Next"
+        android:text="@string/next"
         android:textColor="@android:color/white"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/verification_code" />
+        app:layout_constraintTop_toBottomOf="@id/verification_code"
+        tools:ignore="VisualLintButtonSize" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
