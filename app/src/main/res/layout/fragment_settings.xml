@@ -37,4 +37,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <Button
+        app:layout_constraintStart_toStartOf="@id/switch_theme"
+        app:layout_constraintEnd_toEndOf="@id/switch_theme"
+        app:layout_constraintTop_toBottomOf="@id/switch_theme"
+        android:id="@+id/buttonSelectCountries"
+        android:layout_width="wrap_content"
+        android:text="Select countries to save local dataabse"
+        android:layout_height="wrap_content"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

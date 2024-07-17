@@ -18,6 +18,7 @@ import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ApiService {
     @POST("api/users/signup")
@@ -54,6 +55,8 @@ interface ApiService {
     @GET("api/reports/years")
     fun getYears(): Call<List<Year>>
 
+    @GET("api/countrydata")
+    suspend fun getCountryData(@Query("countries") countries: List<String>): Response<Map<String, Any>>
 }
 
 

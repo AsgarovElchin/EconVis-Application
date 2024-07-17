@@ -7,19 +7,27 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ExpandableListView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import asgarov.elchin.econvis.data.model.Country
 import asgarov.elchin.econvis.data.repository.UserRepository
 import asgarov.elchin.econvis.databinding.FragmentSettingsBinding
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 import asgarov.elchin.econvis.utils.PreferenceHelper
+import asgarov.elchin.econvis.utils.RegionExpandableListAdapter
 import asgarov.elchin.econvis.utils.ThemeUtils
+import asgarov.ui.comparison.ComparisonViewModel
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class SettingsFragment : Fragment() {
     private lateinit var binding: FragmentSettingsBinding
+    private val viewModel: ComparisonViewModel by viewModels()
+    private val selectedCountryIds = mutableListOf<Long>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,7 +48,46 @@ class SettingsFragment : Fragment() {
             ThemeUtils.setTheme(requireContext(), isChecked)
         }
 
+        binding.buttonSelectCountries.setOnClickListener {
+            viewModel.fetchCountries()
+        }
+
+        setupCountryObserver()
+
         return binding.root
+    }
+
+    private fun setupCountryObserver() {
+        viewModel.countriesByRegion.observe(viewLifecycleOwner, Observer { groupedCountries ->
+            if (groupedCountries.isNotEmpty()) {
+                val regionList = groupedCountries.keys.toList()
+                val countryMap = groupedCountries.mapValues { entry -> entry.value }
+
+                showRegionSelectDialog("Select Countries", regionList, countryMap)
+            } else {
+                Toast.makeText(requireContext(), "No countries found", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun showRegionSelectDialog(
+        title: String,
+        regions: List<String>,
+        countryMap: Map<String, List<Country>>
+    ) {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_categorized_countries, null)
+        val expandableListView = dialogView.findViewById<ExpandableListView>(R.id.expandableListView)
+        val adapter = RegionExpandableListAdapter(requireContext(), regions, countryMap, selectedCountryIds)
+        expandableListView.setAdapter(adapter)
+
+        AlertDialog.Builder(requireContext())
+            .setTitle(title)
+            .setView(dialogView)
+            .setPositiveButton("OK") { _, _ ->
+                // Handle any additional logic after selecting countries if needed
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun handleLogout() {
