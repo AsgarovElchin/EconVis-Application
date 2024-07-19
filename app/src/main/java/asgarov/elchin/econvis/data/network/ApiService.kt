@@ -55,8 +55,9 @@ interface ApiService {
     @GET("api/reports/years")
     fun getYears(): Call<List<Year>>
 
-    @GET("api/countrydata")
-    suspend fun getCountryData(@Query("countries") countries: List<String>): Response<Map<String, Any>>
+
+    @GET("/api/countrydata")
+    suspend fun getCountryData(@Query("countryId") countryId: Long): Response<Map<String, Any>>
 }
 
 

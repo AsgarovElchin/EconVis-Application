@@ -1,6 +1,7 @@
 package asgarov.ui
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -20,10 +21,10 @@ class CountryDataViewModel @Inject constructor(
     private val _countryDataResult = MutableLiveData<Result<Map<String, Any>>>()
     val countryDataResult: LiveData<Result<Map<String, Any>>> = _countryDataResult
 
-    fun fetchCountryData(countries: List<String>) {
+    fun fetchCountryData(countryId: Int) {
         viewModelScope.launch {
             try {
-                val response = repository.getCountryData(countries)
+                val response = repository.getCountryData(listOf(countryId.toString()))
                 if (response.isSuccessful) {
                     response.body()?.let {
                         _countryDataResult.postValue(Result.success(it))
