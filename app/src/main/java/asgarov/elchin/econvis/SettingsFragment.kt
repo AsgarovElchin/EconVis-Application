@@ -59,27 +59,35 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupCountryObserver() {
-        comparisonViewModel.countriesByRegion.observe(viewLifecycleOwner, Observer { groupedCountries ->
-            if (groupedCountries.isNotEmpty()) {
-                val regionList = groupedCountries.keys.toList()
-                val countryMap = groupedCountries.mapValues { entry -> entry.value }
+        comparisonViewModel.countriesByRegion.observe(
+            viewLifecycleOwner,
+            Observer { groupedCountries ->
+                if (groupedCountries.isNotEmpty()) {
+                    val regionList = groupedCountries.keys.toList()
+                    val countryMap = groupedCountries.mapValues { entry -> entry.value }
 
-                showRegionSelectDialog("Select Country", regionList, countryMap)
-            } else {
-                Toast.makeText(requireContext(), "No countries found", Toast.LENGTH_SHORT).show()
-            }
-        })
+                    showRegionSelectDialog("Select Country", regionList, countryMap)
+                } else {
+                    Toast.makeText(requireContext(), "No countries found", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            })
     }
 
     private fun setupCountryDataObserver() {
         countryDataViewModel.countryDataResult.observe(viewLifecycleOwner, Observer { result ->
             result.onSuccess { data ->
                 Log.d("SettingsFragment", "Data fetched successfully: $data")
-                Toast.makeText(requireContext(), "Data fetched successfully", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Data fetched successfully", Toast.LENGTH_SHORT)
+                    .show()
                 // Update UI with the fetched data
             }.onFailure { throwable ->
                 Log.e("SettingsFragment", "Failed to fetch data", throwable)
-                Toast.makeText(requireContext(), "Failed to fetch data: ${throwable.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to fetch data: ${throwable.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         })
     }
@@ -89,9 +97,12 @@ class SettingsFragment : Fragment() {
         regions: List<String>,
         countryMap: Map<String, List<Country>>
     ) {
-        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_categorized_countries, null)
-        val expandableListView = dialogView.findViewById<ExpandableListView>(R.id.expandableListView)
-        val adapter = RegionExpandableListAdapter(requireContext(), regions, countryMap, selectedCountryIds)
+        val dialogView =
+            LayoutInflater.from(context).inflate(R.layout.dialog_categorized_countries, null)
+        val expandableListView =
+            dialogView.findViewById<ExpandableListView>(R.id.expandableListView)
+        val adapter =
+            RegionExpandableListAdapter(requireContext(), regions, countryMap, selectedCountryIds)
         expandableListView.setAdapter(adapter)
 
         AlertDialog.Builder(requireContext())
@@ -100,12 +111,13 @@ class SettingsFragment : Fragment() {
             .setPositiveButton("OK") { _, _ ->
                 // Handle fetching data for selected country
                 if (selectedCountryIds.isNotEmpty()) {
-                    val selectedCountry = selectedCountryIds.first().toInt()
+                    val selectedCountry = selectedCountryIds.first()
                     Log.d("SettingsFragment", "Selected country: $selectedCountry")
                     countryDataViewModel.fetchCountryData(selectedCountry)
                     refreshFragment()
                 } else {
-                    Toast.makeText(requireContext(), "No country selected", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "No country selected", Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -122,7 +134,18 @@ class SettingsFragment : Fragment() {
     }
 
     private fun showLanguageSelectionDialog() {
-        val languages = arrayOf("English", "Spanish", "Chinese", "Arabic", "Azerbaijani", "Hindi", "Bengali", "Portuguese", "Russian", "Urdu")
+        val languages = arrayOf(
+            "English",
+            "Spanish",
+            "Chinese",
+            "Arabic",
+            "Azerbaijani",
+            "Hindi",
+            "Bengali",
+            "Portuguese",
+            "Russian",
+            "Urdu"
+        )
 
         AlertDialog.Builder(requireContext())
             .setTitle("Select Language")
@@ -155,7 +178,10 @@ class SettingsFragment : Fragment() {
         Locale.setDefault(locale)
         val config = Configuration()
         config.setLocale(locale)
-        requireContext().resources.updateConfiguration(config, requireContext().resources.displayMetrics)
+        requireContext().resources.updateConfiguration(
+            config,
+            requireContext().resources.displayMetrics
+        )
         requireActivity().recreate()
     }
 }

@@ -1,6 +1,8 @@
 package asgarov.elchin.econvis.data.network
 
+import asgarov.elchin.econvis.data.model.ApiResponse
 import asgarov.elchin.econvis.data.model.Country
+import asgarov.elchin.econvis.data.model.CountryData
 import asgarov.elchin.econvis.data.model.GiniData
 import asgarov.elchin.econvis.data.model.Indicator
 import asgarov.elchin.econvis.data.model.Report
@@ -55,9 +57,8 @@ interface ApiService {
     @GET("api/reports/years")
     fun getYears(): Call<List<Year>>
 
-
     @GET("/api/countrydata")
-    suspend fun getCountryData(@Query("countryId") countryId: Long): Response<Map<String, Any>>
+    suspend fun getCountryData(@Query("countryId") countryId: Long): Response<ApiResponse>
 }
 
 
