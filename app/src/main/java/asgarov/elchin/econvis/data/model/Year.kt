@@ -1,6 +1,10 @@
 package asgarov.elchin.econvis.data.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "years")
 data class Year(
-    val id: Long,
+    @PrimaryKey val id: Long,
     val year: Int
 )

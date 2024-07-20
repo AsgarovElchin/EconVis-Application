@@ -46,9 +46,11 @@ class SettingsFragment : Fragment() {
         binding.switchTheme.isChecked = ThemeUtils.isDarkMode(requireContext())
         binding.switchTheme.setOnCheckedChangeListener { _, isChecked ->
             ThemeUtils.setTheme(requireContext(), isChecked)
+            Log.d("SettingsFragment", "Theme changed: ${if (isChecked) "Dark" else "Light"}")
         }
 
         binding.buttonSelectCountries.setOnClickListener {
+            Log.d("SettingsFragment", "Selecting countries...")
             comparisonViewModel.fetchCountries()
         }
 
@@ -66,8 +68,10 @@ class SettingsFragment : Fragment() {
                     val regionList = groupedCountries.keys.toList()
                     val countryMap = groupedCountries.mapValues { entry -> entry.value }
 
+                    Log.d("SettingsFragment", "Grouped countries by region: $groupedCountries")
                     showRegionSelectDialog("Select Country", regionList, countryMap)
                 } else {
+                    Log.d("SettingsFragment", "No countries found")
                     Toast.makeText(requireContext(), "No countries found", Toast.LENGTH_SHORT)
                         .show()
                 }
@@ -116,6 +120,7 @@ class SettingsFragment : Fragment() {
                     countryDataViewModel.fetchCountryData(selectedCountry)
                     refreshFragment()
                 } else {
+                    Log.d("SettingsFragment", "No country selected")
                     Toast.makeText(requireContext(), "No country selected", Toast.LENGTH_SHORT)
                         .show()
                 }
@@ -125,11 +130,13 @@ class SettingsFragment : Fragment() {
     }
 
     private fun refreshFragment() {
+        Log.d("SettingsFragment", "Refreshing fragment...")
         selectedCountryIds.clear() // Clear selected country IDs before refreshing
         parentFragmentManager.beginTransaction().detach(this).attach(this).commit()
     }
 
     private fun handleLogout() {
+        Log.d("SettingsFragment", "Handling logout...")
         // Handle logout logic
     }
 
@@ -163,6 +170,7 @@ class SettingsFragment : Fragment() {
                     9 -> "ur"
                     else -> "en"
                 }
+                Log.d("SettingsFragment", "Selected language: $selectedLanguage")
                 saveLanguagePreference(selectedLanguage)
                 updateLanguage(selectedLanguage)
             }
@@ -170,10 +178,12 @@ class SettingsFragment : Fragment() {
     }
 
     private fun saveLanguagePreference(language: String) {
+        Log.d("SettingsFragment", "Saving language preference: $language")
         PreferenceHelper.setLanguage(requireContext(), language)
     }
 
     private fun updateLanguage(language: String) {
+        Log.d("SettingsFragment", "Updating language to: $language")
         val locale = Locale(language)
         Locale.setDefault(locale)
         val config = Configuration()

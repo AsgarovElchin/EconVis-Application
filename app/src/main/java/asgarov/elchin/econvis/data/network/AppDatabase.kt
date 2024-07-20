@@ -4,10 +4,13 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import asgarov.elchin.econvis.data.MIGRATION_1_2
+import asgarov.elchin.econvis.data.MIGRATION_2_3
+import asgarov.elchin.econvis.data.model.Country
 import asgarov.elchin.econvis.data.model.CountryData
+import asgarov.elchin.econvis.data.model.Indicator
+import asgarov.elchin.econvis.data.model.Year
 
-@Database(entities = [CountryData::class], version = 2)
+@Database(entities = [Country::class, Indicator::class, Year::class, CountryData::class], version = 3)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun countryDataDao(): CountryDataDao
 
@@ -22,7 +25,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "econvis_database"
                 )
-                    .addMigrations(MIGRATION_1_2) // Add the migration here
+                    .addMigrations(MIGRATION_2_3) // Add the migration here
                     .build()
                 INSTANCE = instance
                 instance

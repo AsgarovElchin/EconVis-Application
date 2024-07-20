@@ -1,16 +1,12 @@
 package asgarov.elchin.econvis.data
 
-
-
-import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-val MIGRATION_1_2 = object : Migration(1, 2) {
+val MIGRATION_2_3 = object : Migration(2, 3) {
     override fun migrate(database: SupportSQLiteDatabase) {
-        // Define the migration strategy from version 1 to version 2.
-        // For example, if you are adding a new column:
-        database.execSQL("ALTER TABLE country_data ADD COLUMN new_column_name TEXT")
-        // Add any other necessary migration steps here
+        database.execSQL("CREATE TABLE IF NOT EXISTS `countries` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `region` TEXT NOT NULL, PRIMARY KEY(`id`))")
+        database.execSQL("CREATE TABLE IF NOT EXISTS `indicators` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, PRIMARY KEY(`id`))")
+        database.execSQL("CREATE TABLE IF NOT EXISTS `years` (`id` INTEGER NOT NULL, `year` INTEGER NOT NULL, PRIMARY KEY(`id`))")
     }
 }

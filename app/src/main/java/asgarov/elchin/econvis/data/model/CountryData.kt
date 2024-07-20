@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 data class CountryData(
     @PrimaryKey(autoGenerate = true) val id: Long,
     val countryId: Long,
-    val countryName: String?,
+    val countryName: String,
     val indicator: String,
     val year: Int,
     val value: Double

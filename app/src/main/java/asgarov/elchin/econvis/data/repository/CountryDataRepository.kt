@@ -1,9 +1,12 @@
 package asgarov.elchin.econvis.data.repository
 
 import android.util.Log
+import asgarov.elchin.econvis.data.model.Country
 import asgarov.elchin.econvis.data.model.CountryData
 import asgarov.elchin.econvis.data.model.CountryIndicatorData
+import asgarov.elchin.econvis.data.model.Indicator
 import asgarov.elchin.econvis.data.model.IndicatorData
+import asgarov.elchin.econvis.data.model.Year
 import asgarov.elchin.econvis.data.network.ApiService
 import asgarov.elchin.econvis.data.network.CountryDataDao
 import kotlinx.coroutines.Dispatchers
@@ -22,15 +25,14 @@ class CountryDataRepository @Inject constructor(
                 if (response.isSuccessful) {
                     response.body()?.let { data ->
                         Log.d("CountryDataRepository", "API response data: $data")
-                        val countryIndicatorData =
-                            data.map { (indicator: String, yearData: Map<String, String>) ->
-                                CountryIndicatorData(
-                                    indicator = indicator,
-                                    data = yearData.map { (year: String, value: String) ->
-                                        IndicatorData(year.toInt(), value.toDouble())
-                                    }
-                                )
-                            }
+                        val countryIndicatorData = data.map { (indicator, yearData) ->
+                            CountryIndicatorData(
+                                indicator = indicator,
+                                data = yearData.map { (year, value) ->
+                                    IndicatorData(year.toInt(), value.toDouble())
+                                }
+                            )
+                        }
                         countryIndicatorData.forEach { indicatorData ->
                             indicatorData.data.forEach { data ->
                                 val entity = CountryData(
@@ -59,4 +61,52 @@ class CountryDataRepository @Inject constructor(
             }
         }
     }
+
+
+    suspend fun fetchAndStoreCountries() {
+        withContext(Dispatchers.IO) {
+            val response = apiService.getCountries().execute()
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    countryDataDao.insertCountries(it)
+                }
+            }
+        }
+    }
+
+    suspend fun fetchAndStoreIndicators() {
+        withContext(Dispatchers.IO) {
+            val response = apiService.getIndicators().execute()
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    countryDataDao.insertIndicators(it)
+                }
+            }
+        }
+    }
+
+    suspend fun fetchAndStoreYears() {
+        withContext(Dispatchers.IO) {
+            val response = apiService.getYears().execute()
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    countryDataDao.insertYears(it)
+                }
+            }
+        }
+    }
+
+    suspend fun getLocalCountries(): List<Country> {
+        return countryDataDao.getCountries()
+    }
+
+    suspend fun getLocalIndicators(): List<Indicator> {
+        return countryDataDao.getIndicators()
+    }
+
+    suspend fun getLocalYears(): List<Year> {
+        return countryDataDao.getYears()
+    }
+
+
 }
