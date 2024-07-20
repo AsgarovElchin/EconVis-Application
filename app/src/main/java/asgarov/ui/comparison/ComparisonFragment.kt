@@ -15,13 +15,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ExpandableListView
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import asgarov.elchin.econvis.R
 import asgarov.elchin.econvis.data.model.Country
+import asgarov.elchin.econvis.data.model.Indicator
 import asgarov.elchin.econvis.data.model.Report
 import asgarov.elchin.econvis.data.model.ReportRequest
+import asgarov.elchin.econvis.data.model.Year
 import asgarov.elchin.econvis.databinding.FragmentComparisonBinding
+import asgarov.elchin.econvis.utils.NetworkUtils
 import asgarov.elchin.econvis.utils.RegionExpandableListAdapter
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.HorizontalBarChart
@@ -44,10 +48,15 @@ import java.io.FileOutputStream
 class ComparisonFragment : Fragment() {
     private lateinit var binding: FragmentComparisonBinding
     private val viewModel: ComparisonViewModel by viewModels()
+    private val chartData = mutableListOf<Pair<String, Float>>()
+
 
     private val selectedCountryIds = mutableListOf<Long>()
     private val selectedIndicatorIds = mutableListOf<Long>()
     private val selectedYearIds = mutableListOf<Long>()
+    private lateinit var indicators: List<Indicator>
+    private lateinit var years: List<Year>
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -76,7 +85,8 @@ class ComparisonFragment : Fragment() {
         })
 
         viewModel.indicators.observe(viewLifecycleOwner, Observer { result ->
-            result.onSuccess { indicators ->
+            result.onSuccess { indicatorsList ->
+                indicators = indicatorsList
                 Log.d("ComparisonFragment", "Indicators: $indicators")
                 val indicatorNames = indicators.map { it.name }.toTypedArray()
                 val indicatorIds = indicators.map { it.id }.toLongArray()
@@ -90,7 +100,8 @@ class ComparisonFragment : Fragment() {
         })
 
         viewModel.years.observe(viewLifecycleOwner, Observer { result ->
-            result.onSuccess { years ->
+            result.onSuccess { yearsList ->
+                years = yearsList
                 Log.d("ComparisonFragment", "Years: $years")
                 val yearValues = years.map { it.year.toString() }.toTypedArray()
                 val yearIds = years.map { it.id }.toLongArray()
@@ -115,17 +126,51 @@ class ComparisonFragment : Fragment() {
                 Log.e("ComparisonFragment", "Error fetching reports", throwable)
             }
         })
-    }
 
-    private fun setupButtons() {
+        viewModel.countryDataValue.observe(viewLifecycleOwner, Observer { value ->
+            if (value != null) {
+                Log.d("ComparisonFragment", "Fetched country data value: $value")
+                // Update the chart data with the fetched value
+                val selectedCountryName = selectedCountryIds.first().toString() // Update this to get the actual country name
+                val selectedIndicatorName = indicators.find { it.id == selectedIndicatorIds.first() }?.name ?: ""
+                val selectedYearValue = years.find { it.id == selectedYearIds.first() }?.year ?: 0
+
+                chartData.add(Pair("$selectedCountryName - $selectedYearValue", value.toFloat()))
+                updateChartData()
+                Toast.makeText(requireContext(), "Fetched value: $value", Toast.LENGTH_SHORT).show()
+            } else {
+                Log.e("ComparisonFragment", "Failed to fetch country data value")
+                Toast.makeText(requireContext(), "Failed to fetch value", Toast.LENGTH_SHORT).show()
+            }
+        })}
+
+
+        private fun setupButtons() {
         binding.fetchDataButton.setOnClickListener {
             Log.d("ComparisonFragment", "Selected country IDs: $selectedCountryIds")
             Log.d("ComparisonFragment", "Selected indicator IDs: $selectedIndicatorIds")
             Log.d("ComparisonFragment", "Selected year IDs: $selectedYearIds")
-            if (selectedIndicatorIds.isNotEmpty()) {
-                viewModel.fetchReports(ReportRequest(selectedCountryIds, selectedIndicatorIds, selectedYearIds))
+
+            if (selectedCountryIds.isNotEmpty() && selectedIndicatorIds.isNotEmpty() && selectedYearIds.isNotEmpty()) {
+                val selectedCountry = selectedCountryIds.first()
+                val selectedIndicatorId = selectedIndicatorIds.first()
+                val selectedYearId = selectedYearIds.first()
+
+                val selectedIndicatorName = indicators.find { it.id == selectedIndicatorId }?.name ?: ""
+                val selectedYearValue = years.find { it.id == selectedYearId }?.year ?: 0
+
+                Log.d("ComparisonFragment", "Selected country ID: $selectedCountry")
+                Log.d("ComparisonFragment", "Selected indicator: $selectedIndicatorName")
+                Log.d("ComparisonFragment", "Selected year: $selectedYearValue")
+
+                if (NetworkUtils.isNetworkAvailable(requireContext())) {
+                    viewModel.fetchReports(ReportRequest(selectedCountryIds, selectedIndicatorIds, selectedYearIds))
+                } else {
+                    viewModel.fetchCountryDataValue(selectedCountry, selectedIndicatorName, selectedYearValue)
+                }
             } else {
-                Log.e("ComparisonFragment", "Please select at least one indicator.")
+                Log.e("ComparisonFragment", "Please select country, indicator, and year.")
+                Toast.makeText(requireContext(), "Please select country, indicator, and year.", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -139,6 +184,11 @@ class ComparisonFragment : Fragment() {
             visibleChart?.let { saveChart(it) }
         }
     }
+
+
+
+
+
 
     private fun setupChartSwitch() {
         binding.barChartIcon.setOnClickListener {
@@ -230,6 +280,16 @@ class ComparisonFragment : Fragment() {
     }
 
     private fun updateChart(reports: List<Report>) {
+        chartData.clear()
+        // Existing logic to handle reports data...
+        reports.forEach { report ->
+            val label = "${report.country.name} - ${report.year.year}"
+            chartData.add(Pair(label, report.data.toFloat()))
+        }
+        updateChartData()
+    }
+
+    private fun updateChartData() {
         val barChart: BarChart = binding.barChart
         val horizontalBarChart: HorizontalBarChart = binding.horizontalBarChart
         val lineChart: LineChart = binding.lineChart
@@ -244,26 +304,16 @@ class ComparisonFragment : Fragment() {
         val textColor = if (isDarkMode) resources.getColor(R.color.white, null) else resources.getColor(R.color.black, null)
         val backgroundColor = if (isDarkMode) resources.getColor(R.color.black, null) else resources.getColor(R.color.white, null)
 
-        // Group the data by indicator, year, and country
-        val groupedData = reports.groupBy { it.indicator.name }
-            .flatMap { (indicator, indicatorReports) ->
-                indicatorReports.groupBy { it.year.year }
-                    .flatMap { (year, yearReports) ->
-                        yearReports.map { report ->
-                            Triple(indicator, year, report)
-                        }
-                    }
-            }
-
         val barEntries = ArrayList<BarEntry>()
         val horizontalBarEntries = ArrayList<BarEntry>()
         val lineEntries = ArrayList<Entry>()
         val xLabels = ArrayList<String>()
-        groupedData.forEachIndexed { index, (indicator, year, report) ->
-            barEntries.add(BarEntry(index.toFloat(), report.data.toFloat()))
-            horizontalBarEntries.add(BarEntry(index.toFloat(), report.data.toFloat()))
-            lineEntries.add(Entry(index.toFloat(), report.data.toFloat()))
-            xLabels.add("${report.country.name} - $year")
+
+        chartData.forEachIndexed { index, data ->
+            barEntries.add(BarEntry(index.toFloat(), data.second))
+            horizontalBarEntries.add(BarEntry(index.toFloat(), data.second))
+            lineEntries.add(Entry(index.toFloat(), data.second))
+            xLabels.add(data.first)
         }
 
         // Set up BarChart
@@ -341,6 +391,7 @@ class ComparisonFragment : Fragment() {
         horizontalBarChart.legend.isEnabled = false
         lineChart.legend.isEnabled = false
     }
+
 
     private fun saveChart(chart: View) {
         val bitmap = Bitmap.createBitmap(chart.width, chart.height, Bitmap.Config.ARGB_8888)

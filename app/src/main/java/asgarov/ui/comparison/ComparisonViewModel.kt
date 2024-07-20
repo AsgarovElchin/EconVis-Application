@@ -38,6 +38,9 @@ class ComparisonViewModel @Inject constructor(
     private val _reports = MutableLiveData<Result<List<Report>>>()
     val reports: LiveData<Result<List<Report>>> = _reports
 
+    private val _countryDataValue = MutableLiveData<Double?>()
+    val countryDataValue: LiveData<Double?> = _countryDataValue
+
     fun fetchCountries() {
         if (NetworkUtils.isNetworkAvailable(getApplication())) {
             Log.d("ComparisonViewModel", "Fetching countries from network...")
@@ -161,5 +164,17 @@ class ComparisonViewModel @Inject constructor(
                 _reports.postValue(Result.failure(t))
             }
         })
+    }
+
+    fun fetchCountryDataValue(countryId: Long, indicator: String, year: Int) {
+        viewModelScope.launch {
+            try {
+                val value = reportRepository.getCountryDataValue(countryId, indicator, year)
+                _countryDataValue.postValue(value)
+            } catch (e: Exception) {
+                // Handle any exceptions
+                _countryDataValue.postValue(null)
+            }
+        }
     }
 }

@@ -62,4 +62,10 @@ class ReportRepository @Inject constructor(
     suspend fun getLocalYears(): List<Year> {
         return countryDataDao.getYears()
     }
+
+    suspend fun getCountryDataValue(countryId: Long, indicator: String, year: Int): Double? {
+        return withContext(Dispatchers.IO) {
+            countryDataDao.getCountryDataValue(countryId, indicator, year)
+        }
+    }
 }
