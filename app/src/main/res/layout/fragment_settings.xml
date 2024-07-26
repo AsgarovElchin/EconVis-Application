@@ -46,6 +46,15 @@
         android:text="Select countries to save local dataabse"
         android:layout_height="wrap_content"/>
 
+    <Button
+        android:layout_marginTop="20dp"
+        android:text="Click"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttonSelectCountries"
+        android:id="@+id/click"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,7 +1,6 @@
 package asgarov.elchin.econvis
 
 import android.content.Context
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -28,10 +27,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         applyLanguagePreference(this)
-
-        if (ThemeUtils.isDarkMode(this)) {
-            ThemeUtils.setTheme(this, true)
-        }
+        setDefaultTheme()
 
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -42,6 +38,26 @@ class MainActivity : AppCompatActivity() {
             .findFragmentById(R.id.fragmentContainerView) as NavHostFragment
         navController = navHostFragment.navController
 
+        // Determine the start destination based on login and onboarding status
+        setupNavigationGraph()
+    }
+
+    private fun setDefaultTheme() {
+        val isDarkMode = ThemeUtils.isDarkMode(this)
+        ThemeUtils.setTheme(isDarkMode)
+    }
+
+    private fun applyLanguagePreference(context: Context) {
+        val language = PreferenceHelper.getLanguage(context)
+        val locale = Locale(language)
+        Locale.setDefault(locale)
+        val config = context.resources.configuration
+        config.setLocale(locale)
+        config.setLayoutDirection(locale)
+        context.resources.updateConfiguration(config, context.resources.displayMetrics)
+    }
+
+    private fun setupNavigationGraph() {
         val navInflater = navController.navInflater
         val navGraph = navInflater.inflate(R.navigation.my_nav)
 
@@ -50,28 +66,14 @@ class MainActivity : AppCompatActivity() {
             isUserLoggedIn() -> {
                 navGraph.setStartDestination(R.id.menuContainerActivity)
             }
-
             isUserOnboarded() -> {
                 navGraph.setStartDestination(R.id.signUpOrLoginFragment)
             }
-
             else -> {
                 navGraph.setStartDestination(R.id.viewPagerFragment)
             }
         }
-
-        // Set the graph to the navController
         navController.graph = navGraph
-    }
-
-    fun applyLanguagePreference(context: Context) {
-        val language = PreferenceHelper.getLanguage(context)
-        val locale = Locale(language)
-        Locale.setDefault(locale)
-        val config = context.resources.configuration
-        config.setLocale(locale)
-        config.setLayoutDirection(locale)
-        context.resources.updateConfiguration(config, context.resources.displayMetrics)
     }
 
     private fun isUserLoggedIn(): Boolean {

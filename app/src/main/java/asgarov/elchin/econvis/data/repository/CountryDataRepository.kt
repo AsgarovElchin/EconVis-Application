@@ -1,12 +1,10 @@
 package asgarov.elchin.econvis.data.repository
 
 import android.util.Log
-import asgarov.elchin.econvis.data.model.Country
 import asgarov.elchin.econvis.data.model.CountryData
 import asgarov.elchin.econvis.data.model.CountryIndicatorData
-import asgarov.elchin.econvis.data.model.Indicator
 import asgarov.elchin.econvis.data.model.IndicatorData
-import asgarov.elchin.econvis.data.model.Year
+import asgarov.elchin.econvis.data.model.NewCountryData
 import asgarov.elchin.econvis.data.network.ApiService
 import asgarov.elchin.econvis.data.network.CountryDataDao
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +16,7 @@ class CountryDataRepository @Inject constructor(
     private val apiService: ApiService
 ) {
 
-    suspend fun fetchCountryData(countryId: Long): Result<List<CountryIndicatorData>> {
+    suspend fun fetchCountryData(countryId: Long, countryName: String): Result<List<CountryIndicatorData>> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.getCountryData(countryId)
@@ -38,7 +36,7 @@ class CountryDataRepository @Inject constructor(
                                 val entity = CountryData(
                                     id = 0L, // Auto-generated ID
                                     countryId = countryId,
-                                    countryName = "", // Populate this if available
+                                    countryName = countryName, // Use the passed country name
                                     indicator = indicatorData.indicator,
                                     year = data.year,
                                     value = data.value
@@ -60,6 +58,19 @@ class CountryDataRepository @Inject constructor(
                 Result.failure(e)
             }
         }
+    }
+
+
+    suspend fun getAllCountries(): List<NewCountryData> {
+        return countryDataDao.getAllCountries()
+    }
+
+    suspend fun deleteDataByCountry(countryId: Long) {
+        return countryDataDao.deleteDataByCountry(countryId)
+    }
+
+    suspend fun deleteAllData() {
+        return countryDataDao.deleteAllData()
     }
 
 

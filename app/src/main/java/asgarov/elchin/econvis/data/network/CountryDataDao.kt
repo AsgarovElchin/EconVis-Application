@@ -7,6 +7,7 @@ import androidx.room.Query
 import asgarov.elchin.econvis.data.model.Country
 import asgarov.elchin.econvis.data.model.CountryData
 import asgarov.elchin.econvis.data.model.Indicator
+import asgarov.elchin.econvis.data.model.NewCountryData
 import asgarov.elchin.econvis.data.model.Year
 
 @Dao
@@ -32,8 +33,17 @@ interface CountryDataDao {
     @Query("SELECT * FROM years")
     suspend fun getYears(): List<Year>
 
-    @Query("SELECT value FROM country_data WHERE countryId = :countryId AND indicator = :indicator AND year = :year")
-    suspend fun getCountryDataValue(countryId: Long, indicator: String, year: Int): Double?
+    @Query("SELECT * FROM country_data WHERE countryId = :countryId AND indicator = :indicator AND year IN (:years)")
+    suspend fun getCountryDataValues(countryId: Long, indicator: String, years: List<Int>): List<CountryData>
 
-?
+    @Query("SELECT DISTINCT countryId, countryName FROM country_data")
+    suspend fun getAllCountries(): List<NewCountryData>
+
+    @Query("DELETE FROM country_data WHERE countryId = :countryId")
+    suspend fun deleteDataByCountry(countryId: Long)
+
+    @Query("DELETE FROM country_data")
+    suspend fun deleteAllData()
+
+
 }

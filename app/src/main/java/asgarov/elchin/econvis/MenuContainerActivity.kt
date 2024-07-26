@@ -3,6 +3,7 @@ package asgarov.elchin.econvis
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -24,9 +25,7 @@ class MenuContainerActivity : AppCompatActivity() {
         binding = ActivityMenuContainerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         setSupportActionBar(binding.toolbar)
-
 
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.fragmentContainerView2) as NavHostFragment
@@ -42,13 +41,38 @@ class MenuContainerActivity : AppCompatActivity() {
 
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.bottomNavMenu.setupWithNavController(navController)
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.signUpOrLoginFragment,
+                R.id.loginFragment,
+                R.id.signUpFragment -> hideBothMenus()
+                R.id.localDataViewFragment -> hideBottomMenu()
+                else -> showBothMenus()
+            }
+        }
+    }
+
+    private fun hideBothMenus() {
+        binding.bottomNavMenu.visibility = View.GONE
+        binding.toolbar.visibility = View.GONE
+    }
+
+    private fun hideBottomMenu() {
+        binding.bottomNavMenu.visibility = View.GONE
+        binding.toolbar.visibility = View.VISIBLE
+    }
+
+    private fun showBothMenus() {
+        binding.bottomNavMenu.visibility = View.VISIBLE
+        binding.toolbar.visibility = View.VISIBLE
     }
 
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
-    fun applyLanguagePreference(context: Context) {
+    private fun applyLanguagePreference(context: Context) {
         val language = PreferenceHelper.getLanguage(context)
         val locale = Locale(language)
         Locale.setDefault(locale)

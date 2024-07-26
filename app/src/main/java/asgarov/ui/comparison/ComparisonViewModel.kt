@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import asgarov.elchin.econvis.data.model.Country
+import asgarov.elchin.econvis.data.model.CountryData
 import asgarov.elchin.econvis.data.model.Indicator
 import asgarov.elchin.econvis.data.model.Report
 import asgarov.elchin.econvis.data.model.ReportRequest
@@ -38,8 +39,8 @@ class ComparisonViewModel @Inject constructor(
     private val _reports = MutableLiveData<Result<List<Report>>>()
     val reports: LiveData<Result<List<Report>>> = _reports
 
-    private val _countryDataValue = MutableLiveData<Double?>()
-    val countryDataValue: LiveData<Double?> = _countryDataValue
+    private val _countryDataValues = MutableLiveData<List<CountryData>>()
+    val countryDataValues: LiveData<List<CountryData>> = _countryDataValues
 
     fun fetchCountries() {
         if (NetworkUtils.isNetworkAvailable(getApplication())) {
@@ -166,15 +167,17 @@ class ComparisonViewModel @Inject constructor(
         })
     }
 
-    fun fetchCountryDataValue(countryId: Long, indicator: String, year: Int) {
+    fun fetchCountryDataValues(countryId: Long, indicator: String, years: List<Int>) {
         viewModelScope.launch {
             try {
-                val value = reportRepository.getCountryDataValue(countryId, indicator, year)
-                _countryDataValue.postValue(value)
+                val values = reportRepository.getCountryDataValues(countryId, indicator, years)
+                _countryDataValues.postValue(values)
             } catch (e: Exception) {
                 // Handle any exceptions
-                _countryDataValue.postValue(null)
+                _countryDataValues.postValue(emptyList())
             }
         }
     }
+
+
 }

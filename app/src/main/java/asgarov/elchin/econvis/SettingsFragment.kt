@@ -1,6 +1,7 @@
 package asgarov.elchin.econvis
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
@@ -12,6 +13,8 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.NavOptions
+import androidx.navigation.fragment.findNavController
 import asgarov.elchin.econvis.data.model.Country
 import asgarov.elchin.econvis.databinding.FragmentSettingsBinding
 import asgarov.elchin.econvis.utils.PreferenceHelper
@@ -21,6 +24,7 @@ import asgarov.ui.CountryDataViewModel
 import asgarov.ui.comparison.ComparisonViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
+
 
 @AndroidEntryPoint
 class SettingsFragment : Fragment() {
@@ -35,6 +39,10 @@ class SettingsFragment : Fragment() {
     ): View {
         binding = FragmentSettingsBinding.inflate(inflater, container, false)
 
+        binding.click.setOnClickListener{
+            findNavController().navigate(R.id.action_settingsFragment_to_localDataViewFragment)
+        }
+
         binding.buttonLogout.setOnClickListener {
             handleLogout()
         }
@@ -45,8 +53,8 @@ class SettingsFragment : Fragment() {
 
         binding.switchTheme.isChecked = ThemeUtils.isDarkMode(requireContext())
         binding.switchTheme.setOnCheckedChangeListener { _, isChecked ->
-            ThemeUtils.setTheme(requireContext(), isChecked)
-            Log.d("SettingsFragment", "Theme changed: ${if (isChecked) "Dark" else "Light"}")
+            ThemeUtils.saveThemePreference(requireContext(), isChecked)
+            ThemeUtils.setTheme(isChecked)
         }
 
         binding.buttonSelectCountries.setOnClickListener {
@@ -116,13 +124,14 @@ class SettingsFragment : Fragment() {
                 // Handle fetching data for selected country
                 if (selectedCountryIds.isNotEmpty()) {
                     val selectedCountry = selectedCountryIds.first()
-                    Log.d("SettingsFragment", "Selected country: $selectedCountry")
-                    countryDataViewModel.fetchCountryData(selectedCountry)
+                    val selectedCountryName = countryMap.values.flatten()
+                        .find { it.id == selectedCountry }?.name.orEmpty()
+                    Log.d("SettingsFragment", "Selected country: $selectedCountry, $selectedCountryName")
+                    countryDataViewModel.fetchCountryData(selectedCountry, selectedCountryName)
                     refreshFragment()
                 } else {
                     Log.d("SettingsFragment", "No country selected")
-                    Toast.makeText(requireContext(), "No country selected", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(requireContext(), "No country selected", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("Cancel", null)
@@ -137,7 +146,18 @@ class SettingsFragment : Fragment() {
 
     private fun handleLogout() {
         Log.d("SettingsFragment", "Handling logout...")
-        // Handle logout logic
+        // Clear user data from shared preferences
+        PreferenceHelper.setUserLoggedIn(requireContext(), false)
+
+        // Clear the back stack and navigate to the SignUpOrLoginFragment
+        val navOptions = NavOptions.Builder()
+            .setPopUpTo(R.id.menuContainerActivity, true)  // Clear the back stack up to the main fragment
+            .setLaunchSingleTop(true)  // Ensure a single instance of the target fragment
+            .build()
+        findNavController().navigate(R.id.action_settingsFragment_to_signUpOrLoginFragment, null, navOptions)
+
+        // Optional: finish the activity to prevent the user from navigating back
+        requireActivity().finish()
     }
 
     private fun showLanguageSelectionDialog() {

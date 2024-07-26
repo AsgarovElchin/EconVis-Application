@@ -1,6 +1,7 @@
 package asgarov.elchin.econvis.data.repository
 
 import asgarov.elchin.econvis.data.model.Country
+import asgarov.elchin.econvis.data.model.CountryData
 import asgarov.elchin.econvis.data.model.Indicator
 import asgarov.elchin.econvis.data.model.Report
 import asgarov.elchin.econvis.data.model.ReportRequest
@@ -63,9 +64,9 @@ class ReportRepository @Inject constructor(
         return countryDataDao.getYears()
     }
 
-    suspend fun getCountryDataValue(countryId: Long, indicator: String, year: Int): Double? {
+    suspend fun getCountryDataValues(countryId: Long, indicator: String, years: List<Int>): List<CountryData> {
         return withContext(Dispatchers.IO) {
-            countryDataDao.getCountryDataValue(countryId, indicator, year)
+            countryDataDao.getCountryDataValues(countryId, indicator, years)
         }
     }
 }

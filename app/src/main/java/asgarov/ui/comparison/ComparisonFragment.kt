@@ -92,7 +92,12 @@ class ComparisonFragment : Fragment() {
                 val indicatorIds = indicators.map { it.id }.toLongArray()
 
                 binding.selectIndicatorsButton.setOnClickListener {
-                    showSingleSelectDialog("Select Indicator", indicatorNames, indicatorIds, selectedIndicatorIds)
+                    showSingleSelectDialog(
+                        "Select Indicator",
+                        indicatorNames,
+                        indicatorIds,
+                        selectedIndicatorIds
+                    )
                 }
             }.onFailure { throwable ->
                 Log.e("ComparisonFragment", "Error fetching indicators", throwable)
@@ -127,25 +132,37 @@ class ComparisonFragment : Fragment() {
             }
         })
 
-        viewModel.countryDataValue.observe(viewLifecycleOwner, Observer { value ->
-            if (value != null) {
-                Log.d("ComparisonFragment", "Fetched country data value: $value")
-                // Update the chart data with the fetched value
-                val selectedCountryName = selectedCountryIds.first().toString() // Update this to get the actual country name
-                val selectedIndicatorName = indicators.find { it.id == selectedIndicatorIds.first() }?.name ?: ""
-                val selectedYearValue = years.find { it.id == selectedYearIds.first() }?.year ?: 0
+        viewModel.countryDataValues.observe(viewLifecycleOwner, Observer { values ->
+            if (values != null && values.isNotEmpty()) {
+                Log.d("ComparisonFragment", "Fetched country data values: $values")
+                // Update the chart data with the fetched values
+                values.forEach { data ->
+                    val selectedCountryName = selectedCountryIds.first()
+                        .toString() // Update this to get the actual country name
+                    val selectedIndicatorName =
+                        indicators.find { it.id == selectedIndicatorIds.first() }?.name ?: ""
+                    val selectedYearValue = data.year
 
-                chartData.add(Pair("$selectedCountryName - $selectedYearValue", value.toFloat()))
+                    chartData.add(
+                        Pair(
+                            "$selectedCountryName - $selectedYearValue",
+                            data.value.toFloat()
+                        )
+                    )
+                }
                 updateChartData()
-                Toast.makeText(requireContext(), "Fetched value: $value", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Fetched values: $values", Toast.LENGTH_SHORT)
+                    .show()
             } else {
-                Log.e("ComparisonFragment", "Failed to fetch country data value")
-                Toast.makeText(requireContext(), "Failed to fetch value", Toast.LENGTH_SHORT).show()
+                Log.e("ComparisonFragment", "Failed to fetch country data values")
+                Toast.makeText(requireContext(), "Failed to fetch values", Toast.LENGTH_SHORT)
+                    .show()
             }
-        })}
+        })
+    }
 
 
-        private fun setupButtons() {
+    private fun setupButtons() {
         binding.fetchDataButton.setOnClickListener {
             Log.d("ComparisonFragment", "Selected country IDs: $selectedCountryIds")
             Log.d("ComparisonFragment", "Selected indicator IDs: $selectedIndicatorIds")
@@ -154,23 +171,39 @@ class ComparisonFragment : Fragment() {
             if (selectedCountryIds.isNotEmpty() && selectedIndicatorIds.isNotEmpty() && selectedYearIds.isNotEmpty()) {
                 val selectedCountry = selectedCountryIds.first()
                 val selectedIndicatorId = selectedIndicatorIds.first()
-                val selectedYearId = selectedYearIds.first()
+                val selectedYearIdsList = selectedYearIds.mapNotNull { yearId ->
+                    years.find { it.id == yearId }?.year
+                }
 
-                val selectedIndicatorName = indicators.find { it.id == selectedIndicatorId }?.name ?: ""
-                val selectedYearValue = years.find { it.id == selectedYearId }?.year ?: 0
+                val selectedIndicatorName =
+                    indicators.find { it.id == selectedIndicatorId }?.name ?: ""
 
                 Log.d("ComparisonFragment", "Selected country ID: $selectedCountry")
                 Log.d("ComparisonFragment", "Selected indicator: $selectedIndicatorName")
-                Log.d("ComparisonFragment", "Selected year: $selectedYearValue")
+                Log.d("ComparisonFragment", "Selected years: $selectedYearIdsList")
 
                 if (NetworkUtils.isNetworkAvailable(requireContext())) {
-                    viewModel.fetchReports(ReportRequest(selectedCountryIds, selectedIndicatorIds, selectedYearIds))
+                    viewModel.fetchReports(
+                        ReportRequest(
+                            selectedCountryIds,
+                            selectedIndicatorIds,
+                            selectedYearIds
+                        )
+                    )
                 } else {
-                    viewModel.fetchCountryDataValue(selectedCountry, selectedIndicatorName, selectedYearValue)
+                    viewModel.fetchCountryDataValues(
+                        selectedCountry,
+                        selectedIndicatorName,
+                        selectedYearIdsList
+                    )
                 }
             } else {
                 Log.e("ComparisonFragment", "Please select country, indicator, and year.")
-                Toast.makeText(requireContext(), "Please select country, indicator, and year.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Please select country, indicator, and year.",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -184,10 +217,6 @@ class ComparisonFragment : Fragment() {
             visibleChart?.let { saveChart(it) }
         }
     }
-
-
-
-
 
 
     private fun setupChartSwitch() {
@@ -254,9 +283,12 @@ class ComparisonFragment : Fragment() {
         regions: List<String>,
         countryMap: Map<String, List<Country>>
     ) {
-        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_categorized_countries, null)
-        val expandableListView = dialogView.findViewById<ExpandableListView>(R.id.expandableListView)
-        val adapter = RegionExpandableListAdapter(requireContext(), regions, countryMap, selectedCountryIds)
+        val dialogView =
+            LayoutInflater.from(context).inflate(R.layout.dialog_categorized_countries, null)
+        val expandableListView =
+            dialogView.findViewById<ExpandableListView>(R.id.expandableListView)
+        val adapter =
+            RegionExpandableListAdapter(requireContext(), regions, countryMap, selectedCountryIds)
         expandableListView.setAdapter(adapter)
 
         AlertDialog.Builder(requireContext())
@@ -300,9 +332,16 @@ class ComparisonFragment : Fragment() {
         lineChart.clear()
 
         // Determine the current theme
-        val isDarkMode = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-        val textColor = if (isDarkMode) resources.getColor(R.color.white, null) else resources.getColor(R.color.black, null)
-        val backgroundColor = if (isDarkMode) resources.getColor(R.color.black, null) else resources.getColor(R.color.white, null)
+        val isDarkMode =
+            (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        val textColor = if (isDarkMode) resources.getColor(
+            R.color.white,
+            null
+        ) else resources.getColor(R.color.black, null)
+        val backgroundColor = if (isDarkMode) resources.getColor(
+            R.color.black,
+            null
+        ) else resources.getColor(R.color.white, null)
 
         val barEntries = ArrayList<BarEntry>()
         val horizontalBarEntries = ArrayList<BarEntry>()
@@ -404,9 +443,11 @@ class ComparisonFragment : Fragment() {
         outputStream.flush()
         outputStream.close()
 
-        val sharedPreferences = requireContext().getSharedPreferences("saved_charts", Context.MODE_PRIVATE)
+        val sharedPreferences =
+            requireContext().getSharedPreferences("saved_charts", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
-        val filePaths = sharedPreferences.getStringSet("file_paths", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
+        val filePaths = sharedPreferences.getStringSet("file_paths", mutableSetOf())?.toMutableSet()
+            ?: mutableSetOf()
         filePaths.add(file.absolutePath)
         editor.putStringSet("file_paths", filePaths)
         editor.apply()

@@ -9,7 +9,15 @@
         android:id="@+id/settingsFragment"
         android:name="asgarov.elchin.econvis.SettingsFragment"
         android:label="Settings"
-        tools:layout="@layout/fragment_settings" />
+        tools:layout="@layout/fragment_settings" >
+        <action
+            android:id="@+id/action_settingsFragment_to_localDataViewFragment"
+            app:destination="@id/localDataViewFragment" />
+        <action
+            android:id="@+id/action_settingsFragment_to_signUpOrLoginFragment"
+            app:destination="@id/signUpOrLoginFragment" />
+        />
+    </fragment>
     <fragment
         android:id="@+id/comparisonFragment"
         android:name="asgarov.ui.comparison.ComparisonFragment"
@@ -25,4 +33,14 @@
         android:name="asgarov.ui.world_map.WorldMapFragment"
         android:label="World Map"
         tools:layout="@layout/fragment_world_map" />
+    <fragment
+        android:id="@+id/localDataViewFragment"
+        android:name="asgarov.elchin.econvis.LocalDataViewFragment"
+        android:label="fragment_local_data_view"
+        tools:layout="@layout/fragment_local_data_view" />
+    <fragment
+        android:id="@+id/signUpOrLoginFragment"
+        android:name="asgarov.elchin.econvis.SignUpOrLoginFragment"
+        android:label="fragment_sign_up_or_login"
+        tools:layout="@layout/fragment_sign_up_or_login" />
 </navigation>
