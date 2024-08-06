@@ -43,12 +43,12 @@
         app:layout_constraintTop_toBottomOf="@id/switch_theme"
         android:id="@+id/buttonSelectCountries"
         android:layout_width="wrap_content"
-        android:text="Select countries to save local dataabse"
+        android:text="@string/select_countries_to_save_local_database"
         android:layout_height="wrap_content"/>
 
     <Button
         android:layout_marginTop="20dp"
-        android:text="Click"
+        android:text="@string/view_local_data"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/buttonSelectCountries"

@@ -12,7 +12,7 @@ import asgarov.elchin.econvis.data.model.Indicator
 import asgarov.elchin.econvis.data.model.Report
 import asgarov.elchin.econvis.data.model.ReportRequest
 import asgarov.elchin.econvis.data.model.Year
-import asgarov.elchin.econvis.data.repository.ReportRepository
+import asgarov.elchin.econvis.data.repository.ComparsionRepository
 import asgarov.elchin.econvis.utils.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -24,7 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ComparisonViewModel @Inject constructor(
     application: Application,
-    private val reportRepository: ReportRepository
+    private val reportRepository: ComparsionRepository
 ) : AndroidViewModel(application) {
 
     private val _countriesByRegion = MutableLiveData<Map<String, List<Country>>>()

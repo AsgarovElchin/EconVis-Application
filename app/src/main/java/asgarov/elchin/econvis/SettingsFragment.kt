@@ -1,9 +1,10 @@
 package asgarov.elchin.econvis
 
 import android.app.AlertDialog
-import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,21 +18,23 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import asgarov.elchin.econvis.data.model.Country
 import asgarov.elchin.econvis.databinding.FragmentSettingsBinding
+import asgarov.elchin.econvis.utils.CategorizedSingleCountryAdapter
 import asgarov.elchin.econvis.utils.PreferenceHelper
-import asgarov.elchin.econvis.utils.RegionExpandableListAdapter
 import asgarov.elchin.econvis.utils.ThemeUtils
 import asgarov.ui.CountryDataViewModel
 import asgarov.ui.comparison.ComparisonViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 
-
 @AndroidEntryPoint
 class SettingsFragment : Fragment() {
     private lateinit var binding: FragmentSettingsBinding
     private val comparisonViewModel: ComparisonViewModel by viewModels()
     private val countryDataViewModel: CountryDataViewModel by viewModels()
-    private val selectedCountryIds = mutableListOf<Long>()
+    private var selectedCountryId: Long? = null
+
+    private var switchHandler = Handler(Looper.getMainLooper())
+    private var canSwitchTheme = true
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,7 +42,7 @@ class SettingsFragment : Fragment() {
     ): View {
         binding = FragmentSettingsBinding.inflate(inflater, container, false)
 
-        binding.click.setOnClickListener{
+        binding.click.setOnClickListener {
             findNavController().navigate(R.id.action_settingsFragment_to_localDataViewFragment)
         }
 
@@ -53,8 +56,12 @@ class SettingsFragment : Fragment() {
 
         binding.switchTheme.isChecked = ThemeUtils.isDarkMode(requireContext())
         binding.switchTheme.setOnCheckedChangeListener { _, isChecked ->
-            ThemeUtils.saveThemePreference(requireContext(), isChecked)
-            ThemeUtils.setTheme(isChecked)
+            if (canSwitchTheme) {
+                canSwitchTheme = false
+                ThemeUtils.saveThemePreference(requireContext(), isChecked)
+                ThemeUtils.setTheme(isChecked)
+                switchHandler.postDelayed({ canSwitchTheme = true }, 1000) // Debounce delay
+            }
         }
 
         binding.buttonSelectCountries.setOnClickListener {
@@ -77,11 +84,10 @@ class SettingsFragment : Fragment() {
                     val countryMap = groupedCountries.mapValues { entry -> entry.value }
 
                     Log.d("SettingsFragment", "Grouped countries by region: $groupedCountries")
-                    showRegionSelectDialog("Select Country", regionList, countryMap)
+                    showCategorizedSingleCountrySelectDialog("Select Country", regionList, countryMap)
                 } else {
                     Log.d("SettingsFragment", "No countries found")
-                    Toast.makeText(requireContext(), "No countries found", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(requireContext(), "No countries found", Toast.LENGTH_SHORT).show()
                 }
             })
     }
@@ -90,42 +96,40 @@ class SettingsFragment : Fragment() {
         countryDataViewModel.countryDataResult.observe(viewLifecycleOwner, Observer { result ->
             result.onSuccess { data ->
                 Log.d("SettingsFragment", "Data fetched successfully: $data")
-                Toast.makeText(requireContext(), "Data fetched successfully", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(requireContext(), "Data fetched successfully", Toast.LENGTH_SHORT).show()
                 // Update UI with the fetched data
             }.onFailure { throwable ->
                 Log.e("SettingsFragment", "Failed to fetch data", throwable)
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to fetch data: ${throwable.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(requireContext(), "Failed to fetch data: ${throwable.message}", Toast.LENGTH_SHORT).show()
             }
         })
     }
 
-    private fun showRegionSelectDialog(
+    private fun showCategorizedSingleCountrySelectDialog(
         title: String,
         regions: List<String>,
         countryMap: Map<String, List<Country>>
     ) {
-        val dialogView =
-            LayoutInflater.from(context).inflate(R.layout.dialog_categorized_countries, null)
-        val expandableListView =
-            dialogView.findViewById<ExpandableListView>(R.id.expandableListView)
-        val adapter =
-            RegionExpandableListAdapter(requireContext(), regions, countryMap, selectedCountryIds)
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_categorized_single_country_select, null)
+        val expandableListView = dialogView.findViewById<ExpandableListView>(R.id.expandableListView)
+        val adapter = CategorizedSingleCountryAdapter(requireContext(), regions, countryMap, selectedCountryId) // Initialize with selectedCountryId
         expandableListView.setAdapter(adapter)
+
+        expandableListView.setOnChildClickListener { _, _, groupPosition, childPosition, _ ->
+            val selectedCountry = countryMap[regions[groupPosition]]?.get(childPosition)
+            selectedCountry?.let {
+                adapter.selectedCountryId = it.id // Update selected country in adapter
+            }
+            true
+        }
 
         AlertDialog.Builder(requireContext())
             .setTitle(title)
             .setView(dialogView)
             .setPositiveButton("OK") { _, _ ->
-                // Handle fetching data for selected country
-                if (selectedCountryIds.isNotEmpty()) {
-                    val selectedCountry = selectedCountryIds.first()
-                    val selectedCountryName = countryMap.values.flatten()
-                        .find { it.id == selectedCountry }?.name.orEmpty()
+                val selectedCountry = adapter.selectedCountryId
+                if (selectedCountry != null) {
+                    val selectedCountryName = countryMap.values.flatten().find { it.id == selectedCountry }?.name.orEmpty()
                     Log.d("SettingsFragment", "Selected country: $selectedCountry, $selectedCountryName")
                     countryDataViewModel.fetchCountryData(selectedCountry, selectedCountryName)
                     refreshFragment()
@@ -140,20 +144,26 @@ class SettingsFragment : Fragment() {
 
     private fun refreshFragment() {
         Log.d("SettingsFragment", "Refreshing fragment...")
-        selectedCountryIds.clear() // Clear selected country IDs before refreshing
+        selectedCountryId = null
         parentFragmentManager.beginTransaction().detach(this).attach(this).commit()
     }
 
     private fun handleLogout() {
         Log.d("SettingsFragment", "Handling logout...")
+
         // Clear user data from shared preferences
         PreferenceHelper.setUserLoggedIn(requireContext(), false)
 
+        // Ensure the theme is set to light mode
+        ThemeUtils.setTheme(false)
+
         // Clear the back stack and navigate to the SignUpOrLoginFragment
         val navOptions = NavOptions.Builder()
-            .setPopUpTo(R.id.menuContainerActivity, true)  // Clear the back stack up to the main fragment
+            .setPopUpTo(R.id.viewPagerFragment, true)  // Clear the back stack up to the main fragment
             .setLaunchSingleTop(true)  // Ensure a single instance of the target fragment
             .build()
+
+        // Perform the navigation action
         findNavController().navigate(R.id.action_settingsFragment_to_signUpOrLoginFragment, null, navOptions)
 
         // Optional: finish the activity to prevent the user from navigating back
@@ -162,16 +172,8 @@ class SettingsFragment : Fragment() {
 
     private fun showLanguageSelectionDialog() {
         val languages = arrayOf(
-            "English",
-            "Spanish",
-            "Chinese",
-            "Arabic",
-            "Azerbaijani",
-            "Hindi",
-            "Bengali",
-            "Portuguese",
-            "Russian",
-            "Urdu"
+            "English", "Spanish", "Chinese", "Arabic", "Azerbaijani", "Hindi",
+            "Bengali", "Portuguese", "Russian", "Urdu"
         )
 
         AlertDialog.Builder(requireContext())
@@ -208,10 +210,7 @@ class SettingsFragment : Fragment() {
         Locale.setDefault(locale)
         val config = Configuration()
         config.setLocale(locale)
-        requireContext().resources.updateConfiguration(
-            config,
-            requireContext().resources.displayMetrics
-        )
+        requireContext().resources.updateConfiguration(config, requireContext().resources.displayMetrics)
         requireActivity().recreate()
     }
 }

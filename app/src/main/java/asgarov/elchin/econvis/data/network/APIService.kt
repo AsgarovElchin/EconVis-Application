@@ -2,7 +2,6 @@ package asgarov.elchin.econvis.data.network
 
 import asgarov.elchin.econvis.data.model.ApiResponse
 import asgarov.elchin.econvis.data.model.Country
-import asgarov.elchin.econvis.data.model.CountryData
 import asgarov.elchin.econvis.data.model.GiniData
 import asgarov.elchin.econvis.data.model.Indicator
 import asgarov.elchin.econvis.data.model.Report
@@ -22,7 +21,7 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-interface ApiService {
+interface APIService {
     @POST("api/users/signup")
     suspend fun signUp(@Body user: User): Response<ResponseBody>
 

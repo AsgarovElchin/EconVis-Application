@@ -63,6 +63,9 @@
     <string name="dark_mode">Dark mode</string>
     <string name="language">Language</string>
     <string name="forgot_password">Forgot password?</string>
+    <string name="select_countries_to_save_local_database">Select countries to save local database</string>
+    <string name="view_local_data">View Local Data</string>
+    <string name="image_of_saved_charts">Image of saved charts</string>
 
 
 </resources>

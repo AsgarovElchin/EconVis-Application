@@ -1,21 +1,18 @@
 package asgarov.ui.comparison
 
-
 import android.app.AlertDialog
 import android.content.Context
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ExpandableListView
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import asgarov.elchin.econvis.R
@@ -43,20 +40,17 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 import java.io.FileOutputStream
 
-
 @AndroidEntryPoint
 class ComparisonFragment : Fragment() {
     private lateinit var binding: FragmentComparisonBinding
     private val viewModel: ComparisonViewModel by viewModels()
     private val chartData = mutableListOf<Pair<String, Float>>()
 
-
     private val selectedCountryIds = mutableListOf<Long>()
     private val selectedIndicatorIds = mutableListOf<Long>()
     private val selectedYearIds = mutableListOf<Long>()
     private lateinit var indicators: List<Indicator>
     private lateinit var years: List<Year>
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -76,29 +70,13 @@ class ComparisonFragment : Fragment() {
 
     private fun setupObservers() {
         viewModel.countriesByRegion.observe(viewLifecycleOwner, Observer { groupedCountries ->
-            val regionList = groupedCountries.keys.toList()
-            val countryMap = groupedCountries.mapValues { entry -> entry.value }
-
-            binding.selectCountriesButton.setOnClickListener {
-                showRegionSelectDialog("Select Countries", regionList, countryMap)
-            }
+            setupCountrySelection(groupedCountries)
         })
 
         viewModel.indicators.observe(viewLifecycleOwner, Observer { result ->
             result.onSuccess { indicatorsList ->
                 indicators = indicatorsList
-                Log.d("ComparisonFragment", "Indicators: $indicators")
-                val indicatorNames = indicators.map { it.name }.toTypedArray()
-                val indicatorIds = indicators.map { it.id }.toLongArray()
-
-                binding.selectIndicatorsButton.setOnClickListener {
-                    showSingleSelectDialog(
-                        "Select Indicator",
-                        indicatorNames,
-                        indicatorIds,
-                        selectedIndicatorIds
-                    )
-                }
+                setupIndicatorSelection(indicators)
             }.onFailure { throwable ->
                 Log.e("ComparisonFragment", "Error fetching indicators", throwable)
             }
@@ -107,13 +85,7 @@ class ComparisonFragment : Fragment() {
         viewModel.years.observe(viewLifecycleOwner, Observer { result ->
             result.onSuccess { yearsList ->
                 years = yearsList
-                Log.d("ComparisonFragment", "Years: $years")
-                val yearValues = years.map { it.year.toString() }.toTypedArray()
-                val yearIds = years.map { it.id }.toLongArray()
-
-                binding.selectYearsButton.setOnClickListener {
-                    showMultiSelectDialog("Select Years", yearValues, yearIds, selectedYearIds)
-                }
+                setupYearSelection(years)
             }.onFailure { throwable ->
                 Log.e("ComparisonFragment", "Error fetching years", throwable)
             }
@@ -137,30 +109,47 @@ class ComparisonFragment : Fragment() {
                 Log.d("ComparisonFragment", "Fetched country data values: $values")
                 // Update the chart data with the fetched values
                 values.forEach { data ->
-                    val selectedCountryName = selectedCountryIds.first()
-                        .toString() // Update this to get the actual country name
-                    val selectedIndicatorName =
-                        indicators.find { it.id == selectedIndicatorIds.first() }?.name ?: ""
+                    val selectedCountryName = selectedCountryIds.first().toString() // Update this to get the actual country name
+                    val selectedIndicatorName = indicators.find { it.id == selectedIndicatorIds.first() }?.name ?: ""
                     val selectedYearValue = data.year
 
-                    chartData.add(
-                        Pair(
-                            "$selectedCountryName - $selectedYearValue",
-                            data.value.toFloat()
-                        )
-                    )
+                    chartData.add(Pair("$selectedCountryName - $selectedYearValue", data.value.toFloat()))
                 }
                 updateChartData()
-                Toast.makeText(requireContext(), "Fetched values: $values", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(requireContext(), "Fetched values: $values", Toast.LENGTH_SHORT).show()
             } else {
                 Log.e("ComparisonFragment", "Failed to fetch country data values")
-                Toast.makeText(requireContext(), "Failed to fetch values", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(requireContext(), "Failed to fetch values", Toast.LENGTH_SHORT).show()
             }
         })
     }
 
+    private fun setupCountrySelection(groupedCountries: Map<String, List<Country>>) {
+        val regionList = groupedCountries.keys.toList()
+        val countryMap = groupedCountries.mapValues { entry -> entry.value }
+
+        binding.selectCountriesButton.setOnClickListener {
+            showRegionSelectDialog("Select Countries", regionList, countryMap)
+        }
+    }
+
+    private fun setupIndicatorSelection(indicators: List<Indicator>) {
+        val indicatorNames = indicators.map { it.name }.toTypedArray()
+        val indicatorIds = indicators.map { it.id }.toLongArray()
+
+        binding.selectIndicatorsButton.setOnClickListener {
+            showSingleSelectDialog("Select Indicator", indicatorNames, indicatorIds, selectedIndicatorIds)
+        }
+    }
+
+    private fun setupYearSelection(years: List<Year>) {
+        val yearValues = years.map { it.year.toString() }.toTypedArray()
+        val yearIds = years.map { it.id }.toLongArray()
+
+        binding.selectYearsButton.setOnClickListener {
+            showMultiSelectDialog("Select Years", yearValues, yearIds, selectedYearIds)
+        }
+    }
 
     private fun setupButtons() {
         binding.fetchDataButton.setOnClickListener {
@@ -175,8 +164,7 @@ class ComparisonFragment : Fragment() {
                     years.find { it.id == yearId }?.year
                 }
 
-                val selectedIndicatorName =
-                    indicators.find { it.id == selectedIndicatorId }?.name ?: ""
+                val selectedIndicatorName = indicators.find { it.id == selectedIndicatorId }?.name ?: ""
 
                 Log.d("ComparisonFragment", "Selected country ID: $selectedCountry")
                 Log.d("ComparisonFragment", "Selected indicator: $selectedIndicatorName")
@@ -199,11 +187,7 @@ class ComparisonFragment : Fragment() {
                 }
             } else {
                 Log.e("ComparisonFragment", "Please select country, indicator, and year.")
-                Toast.makeText(
-                    requireContext(),
-                    "Please select country, indicator, and year.",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(requireContext(), "Please select country, indicator, and year.", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -217,7 +201,6 @@ class ComparisonFragment : Fragment() {
             visibleChart?.let { saveChart(it) }
         }
     }
-
 
     private fun setupChartSwitch() {
         binding.barChartIcon.setOnClickListener {
@@ -283,12 +266,9 @@ class ComparisonFragment : Fragment() {
         regions: List<String>,
         countryMap: Map<String, List<Country>>
     ) {
-        val dialogView =
-            LayoutInflater.from(context).inflate(R.layout.dialog_categorized_countries, null)
-        val expandableListView =
-            dialogView.findViewById<ExpandableListView>(R.id.expandableListView)
-        val adapter =
-            RegionExpandableListAdapter(requireContext(), regions, countryMap, selectedCountryIds)
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_categorized_countries, null)
+        val expandableListView = dialogView.findViewById<ExpandableListView>(R.id.expandableListView)
+        val adapter = RegionExpandableListAdapter(requireContext(), regions, countryMap, selectedCountryIds)
         expandableListView.setAdapter(adapter)
 
         AlertDialog.Builder(requireContext())
@@ -331,17 +311,8 @@ class ComparisonFragment : Fragment() {
         horizontalBarChart.clear()
         lineChart.clear()
 
-        // Determine the current theme
-        val isDarkMode =
-            (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-        val textColor = if (isDarkMode) resources.getColor(
-            R.color.white,
-            null
-        ) else resources.getColor(R.color.black, null)
-        val backgroundColor = if (isDarkMode) resources.getColor(
-            R.color.black,
-            null
-        ) else resources.getColor(R.color.white, null)
+        // Ensure data synchronization
+        if (chartData.isEmpty()) return
 
         val barEntries = ArrayList<BarEntry>()
         val horizontalBarEntries = ArrayList<BarEntry>()
@@ -355,81 +326,158 @@ class ComparisonFragment : Fragment() {
             xLabels.add(data.first)
         }
 
-        // Set up BarChart
-        val barDataSet = BarDataSet(barEntries, "Inequality Comparison")
-        barDataSet.colors = ColorTemplate.COLORFUL_COLORS.toList()
-        barDataSet.valueTextColor = textColor
+        val isDarkMode = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        val textColor = if (isDarkMode) resources.getColor(R.color.white, null) else resources.getColor(R.color.black, null)
+        val backgroundColor = if (isDarkMode) resources.getColor(R.color.black, null) else resources.getColor(R.color.white, null)
+
+        val barDataSet = BarDataSet(barEntries, "Inequality Comparison").apply {
+            colors = ColorTemplate.COLORFUL_COLORS.toList()
+            valueTextColor = textColor
+        }
         val barData = BarData(barDataSet)
         barChart.data = barData
+        configureChartAppearance(barChart, xLabels, textColor, backgroundColor)
 
-        // Customize BarChart appearance
-        barChart.description.isEnabled = false
-        barChart.setDrawValueAboveBar(true)
-        barChart.setMaxVisibleValueCount(60)
-        barChart.setPinchZoom(false)
-        barChart.setDrawGridBackground(false)
-        barChart.setBackgroundColor(backgroundColor)
-
-        val barXAxis = barChart.xAxis
-        barXAxis.valueFormatter = IndexAxisValueFormatter(xLabels)
-        barXAxis.granularity = 1f
-        barXAxis.position = XAxis.XAxisPosition.BOTTOM
-        barXAxis.setDrawLabels(true)
-        barXAxis.labelRotationAngle = -45f
-        barXAxis.textColor = textColor
-
-        // Set up HorizontalBarChart
-        val horizontalBarDataSet = BarDataSet(horizontalBarEntries, "Inequality Comparison")
-        horizontalBarDataSet.colors = ColorTemplate.COLORFUL_COLORS.toList()
-        horizontalBarDataSet.valueTextColor = textColor
+        val horizontalBarDataSet = BarDataSet(horizontalBarEntries, "Inequality Comparison").apply {
+            colors = ColorTemplate.COLORFUL_COLORS.toList()
+            valueTextColor = textColor
+        }
         val horizontalBarData = BarData(horizontalBarDataSet)
         horizontalBarChart.data = horizontalBarData
+        configureChartAppearance(horizontalBarChart, xLabels, textColor, backgroundColor)
 
-        // Customize HorizontalBarChart appearance
-        horizontalBarChart.description.isEnabled = false
-        horizontalBarChart.setDrawValueAboveBar(true)
-        horizontalBarChart.setMaxVisibleValueCount(60)
-        horizontalBarChart.setPinchZoom(false)
-        horizontalBarChart.setDrawGridBackground(false)
-        horizontalBarChart.setBackgroundColor(backgroundColor)
-
-        val horizontalBarXAxis = horizontalBarChart.xAxis
-        horizontalBarXAxis.valueFormatter = IndexAxisValueFormatter(xLabels)
-        horizontalBarXAxis.granularity = 1f
-        horizontalBarXAxis.position = XAxis.XAxisPosition.BOTTOM
-        horizontalBarXAxis.setDrawLabels(true)
-        horizontalBarXAxis.labelRotationAngle = -45f
-        horizontalBarXAxis.textColor = textColor
-
-        // Set up LineChart
-        val lineDataSet = LineDataSet(lineEntries, "Inequality Comparison")
-        lineDataSet.colors = ColorTemplate.COLORFUL_COLORS.toList()
-        lineDataSet.valueTextColor = textColor
+        val lineDataSet = LineDataSet(lineEntries, "Inequality Comparison").apply {
+            colors = ColorTemplate.COLORFUL_COLORS.toList()
+            valueTextColor = textColor
+        }
         val lineData = LineData(lineDataSet)
         lineChart.data = lineData
+        configureChartAppearance(lineChart, xLabels, textColor, backgroundColor)
 
-        // Customize LineChart appearance
-        lineChart.description.isEnabled = false
-        lineChart.setDrawGridBackground(false)
-        lineChart.setBackgroundColor(backgroundColor)
-
-        val lineXAxis = lineChart.xAxis
-        lineXAxis.valueFormatter = IndexAxisValueFormatter(xLabels)
-        lineXAxis.granularity = 1f
-        lineXAxis.position = XAxis.XAxisPosition.BOTTOM
-        lineXAxis.setDrawLabels(true)
-        lineXAxis.labelRotationAngle = -45f
-        lineXAxis.textColor = textColor
-
-        // Refresh the charts
+        // Force re-layout to ensure the chart updates correctly
         barChart.invalidate()
         horizontalBarChart.invalidate()
         lineChart.invalidate()
+        barChart.requestLayout()
+        horizontalBarChart.requestLayout()
+        lineChart.requestLayout()
+        binding.root.requestLayout()  // Force re-layout on the parent container
 
-        barChart.legend.isEnabled = false
-        horizontalBarChart.legend.isEnabled = false
-        lineChart.legend.isEnabled = false
+        // Add a post-delay to ensure the layout is completely updated
+        binding.root.postDelayed({
+            barChart.invalidate()
+            horizontalBarChart.invalidate()
+            lineChart.invalidate()
+            barChart.requestLayout()
+            horizontalBarChart.requestLayout()
+            lineChart.requestLayout()
+        }, 100)
     }
+
+
+
+    private fun configureChartAppearance(chart: BarChart, xLabels: List<String>, textColor: Int, backgroundColor: Int) {
+        chart.apply {
+            description.isEnabled = false
+            setBackgroundColor(backgroundColor)
+            setDrawValueAboveBar(true)
+
+            val xAxis = xAxis
+            xAxis.valueFormatter = IndexAxisValueFormatter(xLabels)
+            xAxis.granularity = 1f
+            xAxis.position = XAxis.XAxisPosition.BOTTOM
+            xAxis.setDrawLabels(true)
+            xAxis.labelRotationAngle = -45f
+            xAxis.textColor = textColor
+
+            val yAxisLeft = axisLeft
+            yAxisLeft.textColor = textColor
+
+            val yAxisRight = axisRight
+            yAxisRight.textColor = textColor
+
+            data?.dataSets?.forEach { set ->
+                set.valueTextSize = 10f // Set value text size
+                set.setDrawValues(true) // Ensure values are drawn
+            }
+
+            invalidate()
+            legend.isEnabled = false
+        }
+    }
+
+    private fun configureChartAppearance(chart: HorizontalBarChart, xLabels: List<String>, textColor: Int, backgroundColor: Int) {
+        chart.apply {
+            description.isEnabled = false
+            setBackgroundColor(backgroundColor)
+            setDrawValueAboveBar(true) // Draw values above bars
+
+            val xAxis = xAxis
+            xAxis.valueFormatter = IndexAxisValueFormatter(xLabels)
+            xAxis.granularity = 1f
+            xAxis.position = XAxis.XAxisPosition.BOTTOM
+            xAxis.setDrawLabels(true)
+            xAxis.labelRotationAngle = -45f
+            xAxis.textColor = textColor
+
+            val yAxisLeft = axisLeft
+            yAxisLeft.textColor = textColor
+
+            val yAxisRight = axisRight
+            yAxisRight.textColor = textColor
+
+            // Ensure data is not null and set value text size and draw values
+            data?.dataSets?.forEach { set ->
+                set.valueTextSize = 12f // Set value text size
+                set.setDrawValues(true) // Ensure values are drawn
+            }
+
+            // If data is null, create dummy data to force chart rendering (for debugging purposes)
+            if (data == null) {
+                val dummyEntries = listOf(BarEntry(0f, 0f))
+                val dummyDataSet = BarDataSet(dummyEntries, "Dummy").apply {
+                    valueTextSize = 10f
+                    setDrawValues(true)
+                }
+                data = BarData(dummyDataSet)
+            }
+
+            invalidate()
+            requestLayout()
+            legend.isEnabled = false
+        }
+    }
+
+    private fun configureChartAppearance(chart: LineChart, xLabels: List<String>, textColor: Int, backgroundColor: Int) {
+        chart.apply {
+            description.isEnabled = false
+            setBackgroundColor(backgroundColor)
+
+            val xAxis = xAxis
+            xAxis.valueFormatter = IndexAxisValueFormatter(xLabels)
+            xAxis.granularity = 1f
+            xAxis.position = XAxis.XAxisPosition.BOTTOM
+            xAxis.setDrawLabels(true)
+            xAxis.labelRotationAngle = -45f
+            xAxis.textColor = textColor
+
+            val yAxisLeft = axisLeft
+            yAxisLeft.textColor = textColor
+
+            val yAxisRight = axisRight
+            yAxisRight.textColor = textColor
+
+            data?.dataSets?.forEach { set ->
+                set.valueTextSize = 10f // Set value text size
+                set.setDrawValues(true) // Ensure values are drawn
+            }
+
+            invalidate()
+            legend.isEnabled = false
+        }
+    }
+
+
 
 
     private fun saveChart(chart: View) {
@@ -443,11 +491,9 @@ class ComparisonFragment : Fragment() {
         outputStream.flush()
         outputStream.close()
 
-        val sharedPreferences =
-            requireContext().getSharedPreferences("saved_charts", Context.MODE_PRIVATE)
+        val sharedPreferences = requireContext().getSharedPreferences("saved_charts", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
-        val filePaths = sharedPreferences.getStringSet("file_paths", mutableSetOf())?.toMutableSet()
-            ?: mutableSetOf()
+        val filePaths = sharedPreferences.getStringSet("file_paths", mutableSetOf())?.toMutableSet() ?: mutableSetOf()
         filePaths.add(file.absolutePath)
         editor.putStringSet("file_paths", filePaths)
         editor.apply()

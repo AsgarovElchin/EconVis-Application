@@ -6,4 +6,7 @@
     <color name="darkest_purple">#AC78CE</color>
     <color name="gray">#B4B4B4</color>
     <color name="blue">#2196F3</color>
+    <color name="selected_item">#FFDDDDDD</color>
+    <color name="text_color">#424242</color>
+
 </resources>

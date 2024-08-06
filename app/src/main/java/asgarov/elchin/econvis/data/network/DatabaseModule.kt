@@ -14,12 +14,12 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
+    fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
         return AppDatabase.getDatabase(context)
     }
 
     @Provides
-    fun provideCountryDataDao(appDatabase: AppDatabase): CountryDataDao {
-        return appDatabase.countryDataDao()
+    fun provideCountryDataDao(database: AppDatabase): CountryDataDao {
+        return database.countryDataDao()
     }
 }

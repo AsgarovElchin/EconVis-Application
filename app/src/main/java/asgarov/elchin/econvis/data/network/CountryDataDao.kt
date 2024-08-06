@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import asgarov.elchin.econvis.data.model.Country
 import asgarov.elchin.econvis.data.model.CountryData
+import asgarov.elchin.econvis.data.model.GiniData
 import asgarov.elchin.econvis.data.model.Indicator
 import asgarov.elchin.econvis.data.model.NewCountryData
 import asgarov.elchin.econvis.data.model.Year
@@ -44,6 +45,12 @@ interface CountryDataDao {
 
     @Query("DELETE FROM country_data")
     suspend fun deleteAllData()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertGiniData(giniData: List<GiniData>)
+
+    @Query("SELECT * FROM gini_data WHERE year = :year")
+    suspend fun getGiniDataByYear(year: Int): List<GiniData>
 
 
 }

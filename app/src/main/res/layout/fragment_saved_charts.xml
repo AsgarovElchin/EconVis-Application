@@ -24,6 +24,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:contentDescription="@string/image_of_saved_charts"
         android:layout_marginTop="16dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

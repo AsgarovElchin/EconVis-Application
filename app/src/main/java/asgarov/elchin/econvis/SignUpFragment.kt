@@ -1,6 +1,7 @@
 package asgarov.elchin.econvis
 
 import android.os.Bundle
+import android.view.ContextThemeWrapper
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -23,7 +24,9 @@ class SignUpFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentSignUpBinding.inflate(layoutInflater, container, false)
+        val contextThemeWrapper = ContextThemeWrapper(activity, R.style.Base_Theme_EconVis)
+        val localInflater = inflater.cloneInContext(contextThemeWrapper)
+        binding = FragmentSignUpBinding.inflate(localInflater, container, false)
 
         viewModel = ViewModelProvider(this).get(SignUpViewModel::class.java)
         binding.btnSignUp.setOnClickListener {

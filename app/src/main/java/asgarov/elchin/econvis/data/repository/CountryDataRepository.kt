@@ -5,7 +5,7 @@ import asgarov.elchin.econvis.data.model.CountryData
 import asgarov.elchin.econvis.data.model.CountryIndicatorData
 import asgarov.elchin.econvis.data.model.IndicatorData
 import asgarov.elchin.econvis.data.model.NewCountryData
-import asgarov.elchin.econvis.data.network.ApiService
+import asgarov.elchin.econvis.data.network.APIService
 import asgarov.elchin.econvis.data.network.CountryDataDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 class CountryDataRepository @Inject constructor(
     private val countryDataDao: CountryDataDao,
-    private val apiService: ApiService
+    private val apiService: APIService
 ) {
 
     suspend fun fetchCountryData(countryId: Long, countryName: String): Result<List<CountryIndicatorData>> {

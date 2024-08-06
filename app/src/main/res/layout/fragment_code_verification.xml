@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
     android:background="@color/white"
+    android:layout_height="match_parent"
     tools:context=".CodeVerificationFragment">
 
 
@@ -36,8 +36,8 @@
         app:boxCornerRadiusBottomEnd="16dp"
         app:boxCornerRadiusBottomStart="16dp"
         app:boxCornerRadiusTopEnd="16dp"
+        android:textColorHint="@color/black"
         app:boxCornerRadiusTopStart="16dp"
-        app:boxStrokeColor="@color/dark_purple"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_view">
@@ -48,6 +48,8 @@
             android:drawablePadding="12dp"
             android:inputType="textEmailAddress"
             android:paddingStart="16dp"
+            android:textColorHint="#424242"
+            android:visibility="visible"
             tools:ignore="RtlSymmetry,VisualLintTextFieldSize" />
     </com.google.android.material.textfield.TextInputLayout>
 

@@ -36,7 +36,7 @@
     <fragment
         android:id="@+id/localDataViewFragment"
         android:name="asgarov.elchin.econvis.LocalDataViewFragment"
-        android:label="fragment_local_data_view"
+        android:label="View of database"
         tools:layout="@layout/fragment_local_data_view" />
     <fragment
         android:id="@+id/signUpOrLoginFragment"

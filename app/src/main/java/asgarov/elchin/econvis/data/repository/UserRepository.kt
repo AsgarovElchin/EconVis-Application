@@ -5,14 +5,14 @@ import android.util.Log
 import asgarov.elchin.econvis.data.model.ResetData
 import asgarov.elchin.econvis.data.model.User
 import asgarov.elchin.econvis.data.model.VerificationData
-import asgarov.elchin.econvis.data.network.ApiService
+import asgarov.elchin.econvis.data.network.APIService
 import asgarov.elchin.econvis.utils.PreferenceHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.ResponseBody
 import retrofit2.Response
 import javax.inject.Inject
 
-class UserRepository @Inject constructor(private val apiService: ApiService, @ApplicationContext private val context: Context) {
+class UserRepository @Inject constructor(private val apiService: APIService, @ApplicationContext private val context: Context) {
 
 
     suspend fun signUp(user: User): Response<ResponseBody> {

@@ -1,6 +1,7 @@
 package asgarov.elchin.econvis
 
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -33,17 +34,22 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initialize the navController correctly
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.fragmentContainerView) as NavHostFragment
         navController = navHostFragment.navController
 
-        // Determine the start destination based on login and onboarding status
         setupNavigationGraph()
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (!isUserLoggedIn()) {
+            navController.navigate(R.id.signUpOrLoginFragment)
+        }
+    }
+
     private fun setDefaultTheme() {
-        val isDarkMode = ThemeUtils.isDarkMode(this)
+        val isDarkMode = PreferenceHelper.isUserLoggedIn(this) && PreferenceHelper.isDarkMode(this)
         ThemeUtils.setTheme(isDarkMode)
     }
 
@@ -61,7 +67,6 @@ class MainActivity : AppCompatActivity() {
         val navInflater = navController.navInflater
         val navGraph = navInflater.inflate(R.navigation.my_nav)
 
-        // Set the start destination based on conditions
         when {
             isUserLoggedIn() -> {
                 navGraph.setStartDestination(R.id.menuContainerActivity)

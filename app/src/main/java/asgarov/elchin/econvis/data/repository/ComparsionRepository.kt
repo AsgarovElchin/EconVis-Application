@@ -6,15 +6,15 @@ import asgarov.elchin.econvis.data.model.Indicator
 import asgarov.elchin.econvis.data.model.Report
 import asgarov.elchin.econvis.data.model.ReportRequest
 import asgarov.elchin.econvis.data.model.Year
-import asgarov.elchin.econvis.data.network.ApiService
+import asgarov.elchin.econvis.data.network.APIService
 import asgarov.elchin.econvis.data.network.CountryDataDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Call
 import javax.inject.Inject
 
-class ReportRepository @Inject constructor(
-    private val apiService: ApiService,
+class ComparsionRepository @Inject constructor(
+    private val apiService: APIService,
     private val countryDataDao: CountryDataDao
 ) {
 

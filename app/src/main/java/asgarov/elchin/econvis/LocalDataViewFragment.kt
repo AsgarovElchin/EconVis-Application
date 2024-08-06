@@ -15,8 +15,6 @@ import asgarov.elchin.econvis.utils.CountryAdapter
 import asgarov.ui.CountryDataViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
-
-
 @AndroidEntryPoint
 class LocalDataViewFragment : Fragment() {
     private lateinit var binding: FragmentLocalDataViewBinding
@@ -37,7 +35,9 @@ class LocalDataViewFragment : Fragment() {
 
         viewModel.countries.observe(viewLifecycleOwner) { countries ->
             Log.d("LocalDataViewFragment", "Observed countries: $countries")
-            binding.recyclerView.adapter = CountryAdapter(countries) { country ->
+            // Ensure the countries are displayed in the correct order (top to bottom)
+            val sortedCountries = countries.sortedBy { it.countryName }
+            binding.recyclerView.adapter = CountryAdapter(sortedCountries) { country ->
                 // Show a dialog to confirm deletion
                 showDeleteConfirmationDialog(country)
             }

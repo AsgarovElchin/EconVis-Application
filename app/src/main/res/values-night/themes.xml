@@ -12,10 +12,4 @@
         <item name="colorOnSurface">@color/white</item>
     </style>
 
-    <style name="Theme.EconVis" parent="Base.Theme.EconVis" />
-
-    <style name="TextAppearance.App.TextInputLayout" parent="TextAppearance.MaterialComponents.Caption">
-        <item name="android:textColor">@color/dark_purple</item>
-        <item name="android:textSize">16sp</item>
-    </style>
 </resources>
