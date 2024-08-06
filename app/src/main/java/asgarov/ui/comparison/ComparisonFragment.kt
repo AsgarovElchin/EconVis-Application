@@ -22,8 +22,10 @@ import asgarov.elchin.econvis.data.model.Report
 import asgarov.elchin.econvis.data.model.ReportRequest
 import asgarov.elchin.econvis.data.model.Year
 import asgarov.elchin.econvis.databinding.FragmentComparisonBinding
+import asgarov.elchin.econvis.utils.NetworkStatusHelper
 import asgarov.elchin.econvis.utils.NetworkUtils
 import asgarov.elchin.econvis.utils.RegionExpandableListAdapter
+import asgarov.elchin.econvis.utils.SnackbarUtils
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.charts.HorizontalBarChart
 import com.github.mikephil.charting.charts.LineChart
@@ -65,6 +67,20 @@ class ComparisonFragment : Fragment() {
         setupObservers()
         setupButtons()
         setupChartSwitch()
+
+        NetworkStatusHelper.instance.networkStatus.observe(viewLifecycleOwner, Observer { isOnline ->
+            val previousStatus = NetworkStatusHelper.instance.getPreviousNetworkStatus()
+            Log.d("WorldMapFragment", "Network status observed: isOnline=$isOnline, previousStatus=$previousStatus")
+            val message = when {
+                isOnline && previousStatus == false -> "You are in online mode"
+                !isOnline && previousStatus == true -> "You are in offline mode"
+                else -> null
+            }
+            message?.let {
+                Log.d("WorldMapFragment", "Showing Snackbar: $it")
+                SnackbarUtils.showCustomSnackbar(binding.root, it, android.R.color.darker_gray)
+            }
+        })
         return binding.root
     }
 

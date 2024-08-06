@@ -3,7 +3,6 @@ package asgarov.ui.world_map
 import android.R
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -19,7 +18,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import asgarov.elchin.econvis.data.model.GiniData
 import asgarov.elchin.econvis.databinding.FragmentWorldMapBinding
+import asgarov.elchin.econvis.utils.NetworkStatusHelper
 import asgarov.elchin.econvis.utils.PreferenceHelper
+import asgarov.elchin.econvis.utils.SnackbarUtils
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.Locale
 
@@ -28,6 +29,7 @@ class WorldMapFragment : Fragment() {
     private lateinit var binding: FragmentWorldMapBinding
     private val worldMapViewModel: WorldMapViewModel by viewModels()
     private lateinit var webView: WebView
+    private var currentYear: Int? = null
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreateView(
@@ -77,6 +79,7 @@ class WorldMapFragment : Fragment() {
             ) {
                 val selectedYear = parent.getItemAtPosition(position) as Int
                 Log.d("WorldMapFragment", "Selected year: $selectedYear")
+                currentYear = selectedYear
                 worldMapViewModel.fetchGiniData(selectedYear)
             }
 
@@ -102,6 +105,27 @@ class WorldMapFragment : Fragment() {
         }
         binding.zoomOutButton.setOnClickListener {
             webView.zoomOut()
+        }
+
+        // Observe network status
+        NetworkStatusHelper.instance.networkStatus.observe(viewLifecycleOwner, Observer { isOnline ->
+            val previousStatus = NetworkStatusHelper.instance.getPreviousNetworkStatus()
+            Log.d("WorldMapFragment", "Network status observed: isOnline=$isOnline, previousStatus=$previousStatus")
+            val message = when {
+                isOnline && previousStatus == false -> "You are in online mode"
+                !isOnline && previousStatus == true -> "You are in offline mode"
+                else -> null
+            }
+            message?.let {
+                Log.d("WorldMapFragment", "Showing Snackbar: $it")
+                SnackbarUtils.showCustomSnackbar(binding.root, it, R.color.darker_gray)
+            }
+        })
+
+        // Restore the selected year if available
+        currentYear?.let {
+            binding.yearSpinner.setSelection(years.indexOf(it))
+            worldMapViewModel.fetchGiniData(it)
         }
 
         return binding.root

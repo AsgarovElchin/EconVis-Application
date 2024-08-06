@@ -1,5 +1,6 @@
 package asgarov.elchin.econvis
 
+import android.R
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -8,10 +9,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import asgarov.elchin.econvis.data.model.NewCountryData
 import asgarov.elchin.econvis.databinding.FragmentLocalDataViewBinding
 import asgarov.elchin.econvis.utils.CountryAdapter
+import asgarov.elchin.econvis.utils.NetworkStatusHelper
+import asgarov.elchin.econvis.utils.SnackbarUtils
 import asgarov.ui.CountryDataViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -25,6 +29,21 @@ class LocalDataViewFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentLocalDataViewBinding.inflate(inflater, container, false)
+
+        NetworkStatusHelper.instance.networkStatus.observe(viewLifecycleOwner, Observer { isOnline ->
+            val previousStatus = NetworkStatusHelper.instance.getPreviousNetworkStatus()
+            Log.d("WorldMapFragment", "Network status observed: isOnline=$isOnline, previousStatus=$previousStatus")
+            val message = when {
+                isOnline && previousStatus == false -> "You are in online mode"
+                !isOnline && previousStatus == true -> "You are in offline mode"
+                else -> null
+            }
+            message?.let {
+                Log.d("WorldMapFragment", "Showing Snackbar: $it")
+                SnackbarUtils.showCustomSnackbar(binding.root, it, R.color.darker_gray)
+            }
+        })
+
         return binding.root
     }
 

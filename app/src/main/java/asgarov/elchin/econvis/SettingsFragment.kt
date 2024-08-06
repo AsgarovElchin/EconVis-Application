@@ -19,7 +19,9 @@ import androidx.navigation.fragment.findNavController
 import asgarov.elchin.econvis.data.model.Country
 import asgarov.elchin.econvis.databinding.FragmentSettingsBinding
 import asgarov.elchin.econvis.utils.CategorizedSingleCountryAdapter
+import asgarov.elchin.econvis.utils.NetworkStatusHelper
 import asgarov.elchin.econvis.utils.PreferenceHelper
+import asgarov.elchin.econvis.utils.SnackbarUtils
 import asgarov.elchin.econvis.utils.ThemeUtils
 import asgarov.ui.CountryDataViewModel
 import asgarov.ui.comparison.ComparisonViewModel
@@ -71,6 +73,20 @@ class SettingsFragment : Fragment() {
 
         setupCountryObserver()
         setupCountryDataObserver()
+
+        NetworkStatusHelper.instance.networkStatus.observe(viewLifecycleOwner, Observer { isOnline ->
+            val previousStatus = NetworkStatusHelper.instance.getPreviousNetworkStatus()
+            Log.d("WorldMapFragment", "Network status observed: isOnline=$isOnline, previousStatus=$previousStatus")
+            val message = when {
+                isOnline && previousStatus == false -> "You are in online mode"
+                !isOnline && previousStatus == true -> "You are in offline mode"
+                else -> null
+            }
+            message?.let {
+                Log.d("WorldMapFragment", "Showing Snackbar: $it")
+                SnackbarUtils.showCustomSnackbar(binding.root, it, android.R.color.darker_gray)
+            }
+        })
 
         return binding.root
     }

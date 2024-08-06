@@ -1,5 +1,6 @@
 package asgarov.elchin.econvis
 
+import android.R
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
@@ -13,10 +14,13 @@ import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import asgarov.elchin.econvis.data.model.SavedChart
 import asgarov.elchin.econvis.databinding.FragmentSavedChartsBinding
+import asgarov.elchin.econvis.utils.NetworkStatusHelper
 import asgarov.elchin.econvis.utils.SavedChartsAdapter
+import asgarov.elchin.econvis.utils.SnackbarUtils
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 
@@ -35,6 +39,20 @@ class SavedChartsFragment : Fragment() {
         binding.clearSavedChartsButton.setOnClickListener {
             clearAllSavedCharts()
         }
+
+        NetworkStatusHelper.instance.networkStatus.observe(viewLifecycleOwner, Observer { isOnline ->
+            val previousStatus = NetworkStatusHelper.instance.getPreviousNetworkStatus()
+            Log.d("WorldMapFragment", "Network status observed: isOnline=$isOnline, previousStatus=$previousStatus")
+            val message = when {
+                isOnline && previousStatus == false -> "You are in online mode"
+                !isOnline && previousStatus == true -> "You are in offline mode"
+                else -> null
+            }
+            message?.let {
+                Log.d("WorldMapFragment", "Showing Snackbar: $it")
+                SnackbarUtils.showCustomSnackbar(binding.root, it, R.color.darker_gray)
+            }
+        })
 
         return binding.root
     }
